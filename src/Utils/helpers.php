@@ -7,7 +7,7 @@ use Darkterminal\LibSQL\Types\ExpandedScheme;
 use Darkterminal\LibSQL\Types\KeyValue;
 use Darkterminal\LibSQL\Types\Query;
 use Darkterminal\LibSQL\Types\Uri;
-use Darkterminal\LibSQL\Types\Userinfo;
+use Darkterminal\LibSQL\Types\UserInfo;
 use Darkterminal\LibSQL\Utils\Exceptions\LibsqlError;
 
 // Regular Expression for parsing URI
@@ -157,7 +157,7 @@ function parseUri(string $text): Uri
  * Parse authority part of URL and return an Authority object.
  *
  * @param string $text The authority part of the URL.
- * @return Authority An object containing host, port, and userinfo components.
+ * @return Authority An object containing host, port, and userInfo components.
  * @throws LibsqlError If the authority part of the URL is not in a valid format.
  */
 function parseAuthority(string $text): Authority
@@ -180,9 +180,9 @@ function parseAuthority(string $text): Authority
     $port = !empty($groups['port']) ? (int)$groups['port'] : null;
     $username = !empty($groups['username']) ? percentDecode($groups['username']) : null;
     $password = !empty($groups['password']) ? percentDecode($groups['password']) : null;
-    $userinfo = Userinfo::create($username, $password);
+    $userInfo = UserInfo::create($username, $password);
 
-    return Authority::create($host, $port, $userinfo);
+    return Authority::create($host, $port, $userInfo);
 }
 
 /**
@@ -255,8 +255,8 @@ function encodeBaseUrl(string $scheme, ?Authority $authority, string $path): str
 
     $hostText = encodeHost($authority->host);
     $portText = encodePort($authority->port);
-    $userinfoText = encodeUserinfo($authority->userinfo);
-    $authorityText = "//" . $userinfoText . $hostText . $portText;
+    $userInfoText = encodeUserInfo($authority->userInfo);
+    $authorityText = "//" . $userInfoText . $hostText . $portText;
 
     $pathText = $path !== "" && substr($path, 0, 1) !== "/" ? "/" . $path : $path;
     $pathText = implode("/", array_map("rawurlencode", explode("/", $pathText)));
@@ -291,20 +291,20 @@ function encodePort(?int $port): string
 }
 
 /**
- * Function encodeUserinfo
+ * Function encodeUserInfo
  *
- * Encodes the userinfo component of a URI.
+ * Encodes the userInfo component of a URI.
  *
- * @param Userinfo|null $userinfo The userinfo to encode.
- * @return string The encoded userinfo.
+ * @param UserInfo|null $userInfo The userInfo to encode.
+ * @return string The encoded userInfo.
  */
-function encodeUserinfo(?Userinfo $userinfo): string
+function encodeUserInfo(?UserInfo $userInfo): string
 {
-    if ($userinfo === null) {
+    if ($userInfo === null) {
         return "";
     }
 
-    $usernameText = rawurlencode($userinfo->username);
-    $passwordText = $userinfo->password !== null ? ":" . rawurlencode($userinfo->password) : "";
+    $usernameText = rawurlencode($userInfo->username);
+    $passwordText = $userInfo->password !== null ? ":" . rawurlencode($userInfo->password) : "";
     return $usernameText . $passwordText . "@";
 }

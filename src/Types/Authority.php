@@ -12,20 +12,20 @@ class Authority
     public function __construct(
         public string $host,
         public ?int $port,
-        public ?Userinfo $userinfo
+        public ?UserInfo $userInfo
     ) {
         $this->host = $host;
         $this->port = $port;
-        $this->userinfo = $userinfo;
+        $this->userInfo = $userInfo;
     }
 
     public static function create(
         string $host,
         ?int $port,
-        ?Userinfo $userinfo
+        ?UserInfo $userInfo
     ): self
     {
-        return new self($host, $port, $userinfo);
+        return new self($host, $port, $userInfo);
     }
 
     /**
@@ -38,7 +38,7 @@ class Authority
         return [
             'host' => $this->host,
             'port' => !empty($this->port) ? $this->port : null,
-            'userinfo' => !empty($this->userinfo) ? $this->userinfo->toArray() : null
+            'userInfo' => !empty($this->userInfo) ? $this->userInfo->toArray() : null
         ];
     }
 }

@@ -3,11 +3,11 @@
 namespace Darkterminal\LibSQL\Types;
 
 /**
- * Class Userinfo
+ * Class UserInfo
  *
- * Represents the userinfo part of a URI authority.
+ * Represents the userInfo part of a URI authority.
  */
-class Userinfo
+class UserInfo
 {
     public function __construct(
         public string $username,
@@ -26,9 +26,9 @@ class Userinfo
     }
 
     /**
-     * Convert the Userinfo object to an array.
+     * Convert the UserInfo object to an array.
      *
-     * @return array An array representation of the Userinfo object.
+     * @return array An array representation of the UserInfo object.
      */
     public function toArray(): array
     {
