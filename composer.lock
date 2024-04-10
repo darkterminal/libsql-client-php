@@ -1,0 +1,69 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "6cc741d33aa070aa968259cb53425aab",
+    "packages": [
+        {
+            "name": "darkterminal/turso-http",
+            "version": "v1.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/darkterminal/turso-http.git",
+                "reference": "77354e5e0bedfd51295277ccb88be9023116239b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/darkterminal/turso-http/zipball/77354e5e0bedfd51295277ccb88be9023116239b",
+                "reference": "77354e5e0bedfd51295277ccb88be9023116239b",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Darkterminal\\TursoHttp\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Imam Ali Mustofa",
+                    "email": "darkterminal@duck.com"
+                }
+            ],
+            "description": "The TursoHTTP library is a PHP wrapper for Turso HTTP Database API",
+            "support": {
+                "issues": "https://github.com/darkterminal/turso-http/issues",
+                "source": "https://github.com/darkterminal/turso-http/tree/v1.2.0"
+            },
+            "funding": [
+                {
+                    "url": "https://paypal.me/lazarusalhambra",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/darkterminal",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-01-28T07:32:00+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": [],
+    "plugin-api-version": "2.6.0"
+}

@@ -1,0 +1,22 @@
+{
+    "name": "darkterminal/libsql-client-php",
+    "description": "PHP client API for libSQL",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Darkterminal\\LibSQL\\": "src/"
+        },
+        "files": [
+            "src/Utils/helpers.php"
+        ]
+    },
+    "authors": [
+        {
+            "name": "Imam Ali Mustofa",
+            "email": "darkterminal@duck.com"
+        }
+    ],
+    "require": {
+        "darkterminal/turso-http": "^1.2"
+    }
+}
