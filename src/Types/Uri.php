@@ -55,4 +55,14 @@ class Uri
             'fragment' => $this->fragment
         ];
     }
+
+    /**
+     * Converts the Uri instance to a JSON string.
+     *
+     * @return string The JSON representation of the Uri instance.
+     */
+    public function toObject(): string
+    {
+        return \json_encode($this->toArray());
+    }
 }
