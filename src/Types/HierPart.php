@@ -37,4 +37,14 @@ class HierPart
             'path' => $this->path
         ];
     }
+
+    /**
+     * Converts the HierPart instance to a JSON string.
+     *
+     * @return string The JSON representation of the HierPart instance.
+     */
+    public function toObject(): string
+    {
+        return \json_encode($this->toArray());
+    }
 }
