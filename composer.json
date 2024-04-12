@@ -17,6 +17,7 @@
         }
     ],
     "require": {
-        "darkterminal/turso-http": "^1.2"
+        "darkterminal/turso-http": "^1.2",
+        "guzzlehttp/guzzle": "^7.0"
     }
 }
