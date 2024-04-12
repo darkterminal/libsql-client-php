@@ -37,4 +37,14 @@ class KeyValue
             'value' => $this->value,
         ];
     }
+
+    /**
+     * Converts the KeyValue instance to a JSON string.
+     *
+     * @return string The JSON representation of the KeyValue instance.
+     */
+    public function toObject(): string
+    {
+        return \json_encode($this->toArray());
+    }
 }
