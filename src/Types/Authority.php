@@ -41,4 +41,14 @@ class Authority
             'userInfo' => !empty($this->userInfo) ? $this->userInfo->toArray() : null
         ];
     }
+
+    /**
+     * Converts the HttpResponse instance to a JSON string.
+     *
+     * @return string The JSON representation of the HttpResponse instance.
+     */
+    public function toObject(): string
+    {
+        return \json_encode($this->toArray());
+    }
 }
