@@ -10,7 +10,7 @@ namespace Darkterminal\LibSQL\Types;
 class UserInfo
 {
     public function __construct(
-        public string $username,
+        public string|null $username,
         public ?string $password = '',
     ) {
         $this->username = $username;
@@ -18,7 +18,7 @@ class UserInfo
     }
 
     public static function create(
-        string $username,
+        string|null $username,
         ?string $password = ''
     ): self
     {
@@ -36,5 +36,15 @@ class UserInfo
             'username' => $this->username,
             'password' => !empty($this->password) ? $this->password : null
         ];
+    }
+
+    /**
+     * Converts the UserInfo instance to a JSON string.
+     *
+     * @return string The JSON representation of the UserInfo instance.
+     */
+    public function toObject(): string
+    {
+        return \json_encode($this->toArray());
     }
 }
