@@ -28,4 +28,14 @@ class Query
     {
         return ['pairs' => $this->pairs];
     }
+
+    /**
+     * Converts the Query instance to a JSON string.
+     *
+     * @return string The JSON representation of the Query instance.
+     */
+    public function toObject(): string
+    {
+        return \json_encode($this->toArray());
+    }
 }
