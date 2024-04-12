@@ -1,4 +1,7 @@
+playground/
 vendor/
 .vscode/
 taggen
 .env
+
+examples/*.db
