@@ -1,9 +1,9 @@
 <?php
 
 use Darkterminal\LibSQL\Types\Authority;
-use Darkterminal\LibSQL\Types\Config;
 use Darkterminal\LibSQL\Types\ExpandedConfig;
 use Darkterminal\LibSQL\Types\ExpandedScheme;
+use Darkterminal\LibSQL\Types\HttpResultSets;
 use Darkterminal\LibSQL\Types\KeyValue;
 use Darkterminal\LibSQL\Types\Query;
 use Darkterminal\LibSQL\Types\Uri;
@@ -11,12 +11,12 @@ use Darkterminal\LibSQL\Types\UserInfo;
 use Darkterminal\LibSQL\Utils\Exceptions\LibsqlError;
 
 // Regular Expression for parsing URI
-const URI_RE = '/^(?<scheme>[A-Za-z][A-Za-z.+-]*):(\/\/(?<authority>[^\/?#]*))?(?<path>[^?#]*)(\?(?<query>[^#]*))?(#(?<fragment>.*))?$/';
-
+define('URI_RE', '/^(?<scheme>[A-Za-z][A-Za-z.+-]*):(\/\/(?<authority>[^\/?#]*))?(?<path>[^?#]*)(\?(?<query>[^#]*))?(#(?<fragment>.*))?$/');
 // Regular Expression for parsing authority part of URL
-const AUTHORITY_RE = '/^((?<username>[^:]*)(:(?<password>.*))?@)?((?<host>[^:\[\]]*)|(\[(?<host_br>[^\[\]]*)\]))(:(?<port>[0-9]*))?$/';
-
-const SUPPORTED_URL_LINK = "https://github.com/libsql/libsql-client-php#supported-urls";
+define('AUTHORITY_RE', '/^((?<username>[^:]*)(:(?<password>.*))?@)?((?<host>[^:\[\]]*)|(\[(?<host_br>[^\[\]]*)\]))(:(?<port>[0-9]*))?$/');
+define('SUPPORTED_URL_LINK', "https://github.com/libsql/libsql-client-php#supported-urls");
+define('TURSO', 'turso.io');
+define('PIPE_LINE_ENDPOINT', '/v2/pipeline');
 
 /**
  * Convert transaction mode to BEGIN statement.
@@ -39,18 +39,31 @@ function transactionModeToBegin(string $mode): string
     }
 }
 
-function expandConfig(Config $config, bool $preferHttp): ExpandedConfig
+/**
+ * Expand the provided client configuration into an ExpandedConfig object.
+ *
+ * @param array $config The client configuration array.
+ * @param bool $preferHttp Whether to prefer HTTP over WebSocket.
+ *
+ * @return ExpandedConfig The expanded configuration.
+ *
+ * @throws TypeError If the provided configuration is not an array.
+ * @throws LibsqlError If there is an error in the configuration or unsupported URL scheme.
+ */
+function expandConfig(array $config, bool $preferHttp): ExpandedConfig
 {
+    // Ensure the provided configuration is an array
     if (!is_array($config)) {
-        throw new TypeError('Expected client configuration as object, got ' . gettype($config));
+        throw new TypeError('Expected client configuration as array, got ' . gettype($config));
     }
 
-    $tls = $config['tls'] ?? null;
+    // Extract configuration parameters
+    $tls = $config['tls'] ?? false;
     $authToken = $config['authToken'] ?? null;
-    $encryptionKey = $config['encryptionKey'] ?? null;
     $syncUrl = $config['syncUrl'] ?? null;
     $syncInterval = $config['syncInterval'] ?? null;
 
+    // Check if the URL is for in-memory database
     if ($config['url'] === ':memory:') {
         return ExpandedConfig::create(
             ExpandedScheme::file,
@@ -58,33 +71,40 @@ function expandConfig(Config $config, bool $preferHttp): ExpandedConfig
             null,
             ':memory:',
             $authToken,
-            $encryptionKey,
             $syncUrl,
             $syncInterval
         );
     }
 
+    // Parse the URL
     $uri = parseUri($config['url']);
-    foreach ($uri->query->pairs as $pair) {
-        $key = $pair->key;
-        $value = $pair->value;
-        if ($key === 'authToken') {
-            $authToken = $value !== '' ? $value : null;
-        } elseif ($key === 'tls') {
-            if ($value === '0') {
-                $tls = false;
-            } elseif ($value === '1') {
-                $tls = true;
+
+    // Handle query parameters
+    if (!empty($uri->query->pairs)) {
+        foreach ($uri->query->pairs as $pair) {
+            $key = $pair->key;
+            $value = $pair->value;
+            if ($key === 'authToken') {
+                $authToken = $value !== '' ? $value : null;
+            } elseif ($key === 'tls') {
+                // Parse the 'tls' parameter
+                if ($value === '0') {
+                    $tls = false;
+                } elseif ($value === '1') {
+                    $tls = true;
+                } else {
+                    throw new LibsqlError('Unknown value for the "tls" query argument: ' . json_encode($value) . '. Supported values are "0" and "1"', "URL_INVALID");
+                }
             } else {
-                throw new LibsqlError('Unknown value for the "tls" query argument: ' . json_encode($value) . '. Supported values are "0" and "1"', "URL_INVALID");
+                throw new LibsqlError('Unknown URL query parameter ' . json_encode($key), "URL_PARAM_NOT_SUPPORTED");
             }
-        } else {
-            throw new LibsqlError('Unknown URL query parameter ' . json_encode($key), "URL_PARAM_NOT_SUPPORTED");
         }
     }
 
+    // Determine the scheme
     $uriScheme = strtolower($uri->scheme);
     if ($uriScheme === 'libsql') {
+        // Handle 'libsql' scheme
         if ($tls === false) {
             if ($uri->authority->port === null) {
                 throw new LibsqlError('A "libsql:" URL with ?tls=0 must specify an explicit port', "URL_INVALID");
@@ -94,28 +114,32 @@ function expandConfig(Config $config, bool $preferHttp): ExpandedConfig
             $scheme = $preferHttp ? ExpandedScheme::https : ExpandedScheme::wss;
         }
     } elseif (in_array($uriScheme, [ExpandedScheme::http, ExpandedScheme::ws])) {
+        // Handle HTTP and WebSocket schemes
         $scheme = $uriScheme;
         $tls ??= false;
     } elseif (in_array($uriScheme, [ExpandedScheme::https, ExpandedScheme::wss, ExpandedScheme::file])) {
+        // Handle HTTPS, WSS, and file schemes
         $scheme = $uriScheme;
     } else {
+        // Unsupported scheme
         throw new LibsqlError(
             'The client supports only "libsql:", "wss:", "ws:", "https:", "http:" and "file:" URLs, got ' . json_encode($uri->scheme . ":") . '. For more information, please read ' . SUPPORTED_URL_LINK,
             "URL_SCHEME_NOT_SUPPORTED"
         );
     }
 
-    if ($uri->fragment !== null) {
+    // Check for URL fragments
+    if (!empty($uri->fragment)) {
         throw new LibsqlError('URL fragments are not supported: ' . json_encode("#" . $uri->fragment), "URL_INVALID");
     }
 
+    // Create and return the ExpandedConfig object
     return new ExpandedConfig(
         $scheme,
         $tls ?? true,
         $uri->authority,
         $uri->path,
         $authToken,
-        $encryptionKey,
         $syncUrl,
         $syncInterval
     );
@@ -245,7 +269,7 @@ function percentDecode(string $text): string
  * @return string The encoded URL object.
  * @throws LibsqlError If the URL requires authority.
  */
-function encodeBaseUrl(string $scheme, ?Authority $authority, string $path): string
+function encodeBaseUrl(string $scheme, ?Authority $authority, string $path): array|string|int|false|null
 {
     if ($authority === null) {
         throw new LibsqlError("URL with scheme $scheme: requires authority (the \"//\" part)", "URL_INVALID");
@@ -261,7 +285,7 @@ function encodeBaseUrl(string $scheme, ?Authority $authority, string $path): str
     $pathText = $path !== "" && substr($path, 0, 1) !== "/" ? "/" . $path : $path;
     $pathText = implode("/", array_map("rawurlencode", explode("/", $pathText)));
 
-    return parse_url($schemeText . $authorityText . $pathText);
+    return urldecode($schemeText . $authorityText . $pathText);
 }
 
 /**
@@ -304,7 +328,100 @@ function encodeUserInfo(?UserInfo $userInfo): string
         return "";
     }
 
-    $usernameText = rawurlencode($userInfo->username);
-    $passwordText = $userInfo->password !== null ? ":" . rawurlencode($userInfo->password) : "";
-    return $usernameText . $passwordText . "@";
+    $usernameText = !empty($userInfo->username) ? rawurlencode($userInfo->username) : "";
+    $passwordText = !empty($userInfo->password) ? ":" . rawurlencode($userInfo->password) : "";
+    if (!empty($usernameText) && !empty($passwordText)) {
+        return $usernameText . $passwordText . "@";
+    }
+    return "";
 }
+
+function is_base64(string $data)
+{
+    return base64_encode(base64_decode($data, true)) === $data;
+}
+
+/**
+ * Determines the type of a given column value.
+ *
+ * @param mixed $column The column value to check.
+ * @return string The type of the column value ('unknown', 'float', 'blob', 'integer', 'text', or 'null').
+ */
+function checkColumnType(mixed $column): string
+{
+    $type = 'unknown';
+    if (is_float($column)) {
+        $type = 'float';
+    } else if (is_base64($column)) {
+        $type = 'blob';
+    } else if (is_int($column)) {
+        $type = 'integer';
+    } else if (is_string($column)) {
+        $type = 'text';
+    } else if (is_null($column)) {
+        $type = 'null';
+    }
+
+    return $type;
+}
+
+/**
+ * Map the JSON data to a structured format.
+ *
+ * @param string $data The JSON data to be mapped.
+ *
+ * @return array Mapped results.
+ */
+function map_results(string $data): array
+{
+    // Decode the JSON data
+    $data = json_decode($data, true);
+
+    // Initialize mapped results array
+    $mapped_results = [
+        'results' => []
+    ];
+
+    // Extract baton and base_url from the data
+    $mapped_results['baton'] = $data['baton'];
+    $mapped_results['base_url'] = $data['base_url'];
+
+    // Iterate through each result in the data
+    foreach ($data['results'] as $result) {
+        // Check if the result is successful and has a response
+        if ($result['type'] === 'ok' && isset($result['response']['result'])) {
+            $response = $result['response']['result'];
+
+            // Create a mapped result array
+            $mapped_result = [
+                'cols' => array_map(function ($col) {
+                    return [
+                        'name' => $col['name'],
+                        'decltype' => $col['decltype']
+                    ];
+                }, $response['cols']),
+                'column_types' => array_column($response['cols'], 'decltype'),
+                'rows' => $response['rows'],
+                'affected_row_count' => $response['affected_row_count'],
+                'last_insert_rowid' => $response['last_insert_rowid'],
+                'replication_index' => $response['replication_index']
+            ];
+
+            // Create HttpResultSets object
+            $resultSet = HttpResultSets::create(
+                $mapped_result['cols'],
+                $mapped_result['rows'],
+                $mapped_result['affected_row_count'],
+                $mapped_result['last_insert_rowid'],
+                $mapped_result['replication_index']
+            );
+
+            // Add the resultSet to mapped results
+            array_push($mapped_results['results'], $resultSet);
+        }
+    }
+
+    // Return mapped results
+    return $mapped_results;
+}
+
