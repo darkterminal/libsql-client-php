@@ -336,8 +336,17 @@ function encodeUserInfo(?UserInfo $userInfo): string
     return "";
 }
 
-function is_base64(string $data)
+/**
+ * Check if a string is base64 encoded.
+ * @link https://stackoverflow.com/a/10797086
+ *
+ * @param string $data The string to check.
+ *
+ * @return bool True if the string is base64 encoded, false otherwise.
+ */
+function is_base64(string $data): bool
 {
+    // Check if the string is base64 encoded by encoding and decoding it
     return base64_encode(base64_decode($data, true)) === $data;
 }
 
@@ -349,6 +358,8 @@ function is_base64(string $data)
  */
 function checkColumnType(mixed $column): string
 {
+    $column = str_starts_with(strtolower($column), "b") ? "b$column" : $column;
+
     $type = 'unknown';
     if (is_float($column)) {
         $type = 'float';
