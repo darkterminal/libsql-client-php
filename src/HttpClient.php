@@ -4,9 +4,12 @@ namespace Darkterminal\LibSQL;
 
 use Darkterminal\LibSQL\Types\HttpResponse;
 use Darkterminal\LibSQL\Types\HttpStatement;
+use Darkterminal\LibSQL\Types\TransactionMode;
 use Darkterminal\LibSQL\Utils\Exceptions\LibsqlError;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Request;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * Class HttpClient
@@ -19,10 +22,10 @@ use GuzzleHttp\Psr7\Request;
 class HttpClient
 {
     protected Client $http;
-    protected int|float $timeout = 2.0;
+    protected int|float $timeout;
     protected string $url;
     protected string|null $authToken;
-    protected array $headers = [];
+    protected array $headers;
 
     /**
      * HttpClient constructor.
@@ -34,7 +37,7 @@ class HttpClient
      *
      * @throws LibsqlError If attempting to use a remote (turso) database without providing a token.
      */
-    public function __construct(string $url, string|null $authToken = null)
+    public function __construct(string $url, string|null $authToken = null, int|float $timeout = 2.0)
     {
         // Check if attempting to use a remote (turso) database without providing a token
         if (\strpos($url, \TURSO) !== false && \is_null($authToken)) {
@@ -43,8 +46,14 @@ class HttpClient
 
         $this->url = $url;
         $this->authToken = $authToken;
+        $this->timeout = $timeout;
 
-        // Set headers including Authorization if authToken is provided
+        $this->initializeHttp();
+    }
+
+    private function initializeHttp(): void
+    {
+        $this->headers = [];
         if (!empty($this->authToken)) {
             $this->headers = [
                 'Authorization' => 'Bearer ' . $this->authToken,
@@ -71,11 +80,10 @@ class HttpClient
             // Send a health check request to the server
             $request = new Request('GET', '/health', $this->headers);
             $response = $this->http->send($request);
-            $code = $response->getStatusCode();
-            return $code === 200;
+            return $response->getStatusCode() === 200;
         } catch (\Throwable $e) {
             // If connection fails, throw a LibsqlError
-            throw new LibsqlError("Connection failed!", "CONNECTION_ERROR", $e->getCode());
+            throw new LibsqlError("Connection failed!", "CONNECTION_ERROR");
         }
     }
 
@@ -85,19 +93,19 @@ class HttpClient
      * @param HttpStatement $stmt The HTTP statement object containing SQL and arguments.
      * @param bool $named_args (Optional) Whether the arguments are named.
      *
-     * @return HttpResponse|LibsqlError The HTTP response or a LibsqlError if execution fails.
+     * @return HttpResponse The HTTP response.
      * @throws LibsqlError If execution fails.
      */
-    public function execute(HttpStatement $stmt, bool $named_args = false): HttpResponse
+    public function execute(HttpStatement $stmt): HttpResponse
     {
         try {
             // Create request payload
-            $payload = $this->_createRequest($stmt->sql, $stmt->args, $named_args);
+            $payload = $this->_createRequest($stmt->sql, $stmt->args, $stmt->named_args);
 
             // Send POST request
             $response = $this->http->post(\PIPE_LINE_ENDPOINT, [
                 'headers' => $this->headers,
-                'json' => $payload
+                'json' => $this->_makeRequest($payload)
             ]);
 
             // Process response and return HttpResponse object
@@ -105,25 +113,132 @@ class HttpClient
             return HttpResponse::create($data['baton'], $data['base_url'], $data['results']);
         } catch (\Throwable $e) {
             // If execution fails, throw a LibsqlError
-            throw new LibsqlError("Execution is failed!", "QUERY_OPERATION_ERROR", $e->getCode());
+            throw new LibsqlError($e->getMessage(), "QUERY_OPERATION_ERROR");
         }
     }
 
     /**
-     * Create an HTTP request payload.
+     * Execute a batch of HTTP statements.
      *
-     * @param string $sql The SQL statement to be executed.
-     * @param array|null $args (Optional) The arguments for the SQL statement.
-     * @param bool $named_args (Optional) Whether the arguments are named.
+     * @param array $stmts The array of HTTP statements to execute.
+     * @param string $mode (Optional) The transaction mode read, write, or deferred. Default is 'deferred'.
      *
-     * @return array The HTTP request payload.
+     * @return HttpResponse The HTTP response containing the results of the batch execution.
+     *
+     * @throws LibsqlError If there is an error in the batch execution.
      */
-    private function _createRequest(string $sql, ?array $args = [], bool $named_args = false): array
+    public function batch(array $stmts, string $mode = 'deferred'): HttpResponse
     {
-        $json = [
-            "requests" => []
+        try {
+            // Check if the transaction mode is valid
+            TransactionMode::checker($mode);
+
+            // Create the start transaction request
+            $startTransaction = $this->_createRequest(\transactionModeToBegin($mode));
+
+            // Initialize the batch payload
+            $batchPayload = [];
+
+            // Iterate through each statement and add it to the batch payload
+            foreach ($stmts as $stmt) {
+                /** @var HttpStatement $stmt */
+                \array_push($batchPayload, $this->_createRequest($stmt->sql, $stmt->args, $stmt->named_args));
+            }
+
+            // Add a commit request to the batch payload
+            \array_push($batchPayload, $this->_createRequest('COMMIT'));
+
+            // Execute the batch request asynchronously
+            return $this->http->postAsync(\PIPE_LINE_ENDPOINT, [
+                'headers' => $this->headers,
+                'json' => $this->_makeRequest($startTransaction, false)
+            ])->then(
+                function (ResponseInterface $res) use ($batchPayload) {
+                    // Handle the response from the start transaction request
+                    $beginResult = \map_results($res->getBody());
+                    $trx = HttpResponse::create($beginResult['baton'], $beginResult['base_url'], $beginResult['results']);
+
+                    // Execute the batch payload asynchronously
+                    return $this->http->postAsync(\PIPE_LINE_ENDPOINT, [
+                        'headers' => $this->headers,
+                        'json' => $this->_makeRequest($batchPayload, true, $trx->baton)
+                    ])->then(
+                        function (ResponseInterface $res) {
+                            // Handle the response from the batch execution
+                            $transactionResults = \map_results($res->getBody());
+                            return HttpResponse::create($transactionResults['baton'], $transactionResults['base_url'], $transactionResults['results']);
+                        },
+                        function (RequestException $e) {
+                            // Handle request exceptions during batch execution
+                            throw new LibsqlError($e->getRequest()->getMethod() . " - " . $e->getMessage(), "INVALID_BATCH_TRANSACTION");
+                        }
+                    )->wait();
+                },
+                function (RequestException $e) {
+                    // Handle request exceptions during start transaction
+                    throw new LibsqlError($e->getRequest()->getMethod() . ' - ' . $e->getMessage(), "INVALID_START_TRANSACTION");
+                }
+            )->wait();
+        } catch (\Throwable $e) {
+            // If execution fails, throw a LibsqlError
+            throw new LibsqlError($e->getMessage(), "BATCH_TRANSACTION_TERMINATED");
+        }
+    }
+
+    /**
+     * Create a payload for making a request.
+     *
+     * @param array $data The data to include in the payload.
+     * @param bool $close (Optional) Whether to include a close request. Default is true.
+     * @param string $baton (Optional) The baton string.
+     *
+     * @return array The payload for the request.
+     */
+    private function _makeRequest(array $data, bool $close = true, string $baton = ''): array
+    {
+        // Initialize the payload with the "requests" key
+        $payload = [
+            "requests" => (\count($data) > 2) ? $data : [$data]
         ];
 
+        // Add the close request if needed
+        if ($close) {
+            $payload['requests'][] = $this->_close();
+        }
+
+        // Add the baton if provided
+        if (!empty($baton)) {
+            $payload["baton"] = $baton;
+        }
+
+        return $payload;
+    }
+
+    /**
+     * Create a request array for closing the connection.
+     *
+     * @return array The request array for closing the connection.
+     */
+    private function _close(): array
+    {
+        return ["type" => "close"];
+    }
+
+    /**
+     * Create a request array for execution with the provided SQL statement and arguments.
+     *
+     * @param string $sql The SQL statement to execute.
+     * @param array|null $args (Optional) The arguments for the SQL statement.
+     * @param bool|null $named_args (Optional) Whether the arguments are named or positional.
+     *
+     * @return array The request array for execution.
+     */
+    private function _createRequest(
+        string $sql,
+        ?array $args = [],
+        ?bool $named_args = false
+    ): array {
+        // Initialize the execute request array
         $executeRequest = [
             "type" => "execute",
             "stmt" => [
@@ -134,16 +249,15 @@ class HttpClient
         // Determine if arguments are positional or named and set accordingly
         if ($named_args === false && !empty($args)) {
             $executeRequest["stmt"]["args"] = $this->_argumentsGenerator($args);
-        } else {
+        }
+
+        if ($named_args === true) {
             $executeRequest["stmt"]["named_args"] = $this->_namedArgumentsGenerator($args);
         }
 
-        // Add execute request and close request to the payload
-        $json["requests"][] = $executeRequest;
-        $json["requests"][] = ["type" => "close"];
-
-        return $json;
+        return $executeRequest;
     }
+
 
     /**
      * Generate arguments array for the HTTP request payload.
@@ -245,5 +359,4 @@ class HttpClient
 
         return $type;
     }
-
 }
