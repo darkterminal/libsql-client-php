@@ -18,6 +18,11 @@ class HttpStatement
     public ?array $args;
 
     /**
+     * @var bool The optional arguments for the SQL statement.
+     */
+    public ?bool $named_args;
+
+    /**
      * Constructs a new HttpStatement instance.
      *
      * @param string $sql The SQL statement.
@@ -25,10 +30,12 @@ class HttpStatement
      */
     public function __construct(
         string $sql,
-        ?array $args = []
+        ?array $args = [],
+        ?bool $named_args = false
     ) {
         $this->sql = $sql;
         $this->args = $args;
+        $this->named_args = $named_args;
     }
 
     /**
@@ -40,9 +47,10 @@ class HttpStatement
      */
     public static function create(
         string $sql,
-        ?array $args = []
+        ?array $args = [],
+        ?bool $named_args = false
     ): self {
-        return new self($sql, $args);
+        return new self($sql, $args, $named_args);
     }
 
     /**
@@ -54,7 +62,8 @@ class HttpStatement
     {
         return [
             'sql' => $this->sql,
-            'args' => $this->args
+            'args' => $this->args,
+            'named_args' => $this->named_args
         ];
     }
 
