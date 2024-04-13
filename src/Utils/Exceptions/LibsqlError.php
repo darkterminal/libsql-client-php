@@ -2,11 +2,14 @@
 
 namespace Darkterminal\LibSQL\Utils\Exceptions;
 
+use Darkterminal\LibSQL\Traits\Logging;
+
 /**
  * Error thrown by the client.
  */
 class LibsqlError extends \Exception
 {
+    use Logging;
     /** @var string Machine-readable error code. */
     public $code;
 
@@ -26,6 +29,7 @@ class LibsqlError extends \Exception
         if ($code !== null) {
             $message = $code . ': ' . $message;
         }
+        $this->log($message);
         parent::__construct($message, 0, $cause);
         $this->code = $code;
         $this->rawCode = $rawCode;
