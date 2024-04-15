@@ -2,6 +2,7 @@
 
 namespace Darkterminal\LibSQL;
 
+use Darkterminal\LibSQL\Providers\HttpClient;
 use Darkterminal\LibSQL\Types\ExpandedConfig;
 use Darkterminal\LibSQL\Types\ExpandedScheme;
 use Darkterminal\LibSQL\Utils\Exceptions\LibsqlError;
@@ -15,11 +16,7 @@ use Darkterminal\LibSQL\Utils\Exceptions\LibsqlError;
  */
 class LibSQL
 {
-    /**
-     * @var HttpClient The HTTP client for making requests to the LibSQL service.
-     */
-    public HttpClient $client;
-
+    use HttpClient;
     /**
      * Constructs a new LibSQL instance.
      *
@@ -54,7 +51,7 @@ class LibSQL
             }
 
             $url = \encodeBaseUrl($config->scheme, $config->authority, $config->path);
-            $this->client = new HttpClient($url, $config->authToken);
+            $this->setup($url, $config->authToken);
         } else {
             throw new LibsqlError('The "file" uri is not supported yet!', "FILE_INVALID");
         }
