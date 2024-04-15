@@ -2,11 +2,16 @@
 
 namespace Darkterminal\LibSQL\Types;
 
+use Darkterminal\LibSQL\Traits\MapResults;
+use Darkterminal\LibSQL\Utils\Exceptions\LibsqlError;
+use LibSQLResult;
+
 /**
  * Represents an HTTP response from LibSQL Server with necessary data.
  */
 class HttpResponse
 {
+    use MapResults;
     /**
      * @var string The baton identifier.
      */
@@ -94,4 +99,31 @@ class HttpResponse
             )
         );
     }
+
+    /**
+     * Fetch the results in the specified format.
+     *
+     * @param LibSQLResult $type (Optional) The format in which to fetch the results. Default is LibSQLResult::FETCH_ASSOC.
+     *
+     * @return array|string The fetched results.
+     *
+     * @throws LibsqlError If an undefined fetch option is provided.
+     */
+    public function fetch(LibSQLResult $type = LibSQLResult::FETCH_ASSOC): array|string
+    {
+        $result = \current($this->results);
+        switch ($type) {
+            case LibSQLResult::FETCH_ASSOC:
+                return $this->fetchArray($result);
+                break;
+            case LibSQLResult::FETCH_OBJ:
+                return $this->fetchObject($result);
+                break;
+
+            default:
+                throw new LibsqlError("Error Undefined fetch options", "UNDEFINED_FETCH_OPTIONS");
+                break;
+        }
+    }
+
 }
