@@ -16,7 +16,7 @@ define('URI_RE', '/^(?<scheme>[A-Za-z][A-Za-z.+-]*):(\/\/(?<authority>[^\/?#]*))
 define('AUTHORITY_RE', '/^((?<username>[^:]*)(:(?<password>.*))?@)?((?<host>[^:\[\]]*)|(\[(?<host_br>[^\[\]]*)\]))(:(?<port>[0-9]*))?$/');
 define('SUPPORTED_URL_LINK', "https://github.com/libsql/libsql-client-php#supported-urls");
 define('TURSO', 'turso.io');
-define('PIPE_LINE_ENDPOINT', '/v2/pipeline');
+define('PIPE_LINE_ENDPOINT', '/v3/pipeline');
 
 /**
  * Convert transaction mode to BEGIN statement.
@@ -344,10 +344,9 @@ function encodeUserInfo(?UserInfo $userInfo): string
  *
  * @return bool True if the string is base64 encoded, false otherwise.
  */
-function is_base64(string $data): bool
+function is_base64($string)
 {
-    // Check if the string is base64 encoded by encoding and decoding it
-    return base64_encode(base64_decode($data, true)) === $data;
+    return base64_encode(base64_decode($string, true)) === $string;
 }
 
 /**
@@ -358,7 +357,7 @@ function is_base64(string $data): bool
  */
 function checkColumnType(mixed $column): string
 {
-    $column = str_starts_with(strtolower($column), "b") ? "b$column" : $column;
+    $column = strlen($column) < 5 && gettype($column) === 'string' ? "#$column#" : $column;
 
     $type = 'unknown';
     if (is_float($column)) {
@@ -429,6 +428,10 @@ function map_results(string $data): array
 
             // Add the resultSet to mapped results
             array_push($mapped_results['results'], $resultSet);
+        }
+
+        if ($result['type'] === 'error') {
+            throw new LibsqlError($result['error']['message'], $result['error']['code']);
         }
     }
 
