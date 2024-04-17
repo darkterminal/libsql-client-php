@@ -2,7 +2,6 @@
 
 namespace Darkterminal\LibSQL\Providers;
 
-use Darkterminal\LibSQL\Providers\Extensions\Transaction;
 use Darkterminal\LibSQL\Types\HttpResponse;
 use Darkterminal\LibSQL\Types\HttpStatement;
 use Darkterminal\LibSQL\Types\TransactionMode;
@@ -81,7 +80,7 @@ trait HttpClient
     {
         try {
             // Send a health check request to the server
-            $request = new Request('GET', '/health');
+            $request = new Request('GET', \HEALTH_ENDPOINT);
             $response = $this->http->send($request);
             return $response->getStatusCode() === 200;
         } catch (\Throwable $e) {
@@ -92,6 +91,7 @@ trait HttpClient
 
     /**
      * Execute an HTTP statement.
+     * This method follow @link [Turso - Simple Query](https://docs.turso.tech/sdk/http/reference#simple-query)
      *
      * @param HttpStatement $query The HTTP statement to execute.
      * @param string $baton (Optional) The baton string.
@@ -102,26 +102,21 @@ trait HttpClient
      */
     public function execute(HttpStatement $query, string $baton = ''): HttpResponse
     {
-        try {
-            // Create request payload
-            $payload = $this->_createRequest($query->sql, $query->args, $query->named_args);
-            $request = (!empty($baton)) ? $this->_makeRequest($payload, false, $baton) : $this->_makeRequest($payload);
+        // Create request payload
+        $payload = $this->_createRequest(\LIBSQL_EXECUTE, $query->sql, $query->args, $query->named_args);
+        $request = (!empty($baton)) ? $this->_makeRequest($payload, false, $baton) : $this->_makeRequest($payload);
 
-            // Send POST request
-            $response = $this->runQuery($request, true);
+        // Send POST request
+        $response = $this->runQuery($request, true);
 
-            // Process response and return HttpResponse object
-            $data = \map_results($response->getBody());
-            return HttpResponse::create($data['baton'], $data['base_url'], $data['results']);
-        } catch (\Throwable $e) {
-            $this->_close();
-            // If execution fails, throw a LibsqlError
-            throw new LibsqlError($e->getMessage(), "QUERY_OPERATION_ERROR");
-        }
+        // Process response and return HttpResponse object
+        $data = map_results($response->getBody());
+        return HttpResponse::create($data['baton'], $data['base_url'], $data['results']);
     }
 
     /**
      * Execute a batch of HTTP statements.
+     * This method follow @link [Turso - Interactive Query](https://docs.turso.tech/sdk/http/reference#interactive-query)
      *
      * @param array $queries The array of HTTP statements to execute.
      * @param string $mode (Optional) The transaction mode read, write, or deferred. Default is 'deferred'.
@@ -137,7 +132,7 @@ trait HttpClient
             TransactionMode::checker($mode);
 
             // Create the start transaction request
-            $startTransaction = $this->_createRequest(\transactionModeToBegin($mode));
+            $startTransaction = $this->_createRequest(\LIBSQL_EXECUTE, transactionModeToBegin($mode));
 
             // Initialize the batch payload
             $batchPayload = [];
@@ -145,11 +140,11 @@ trait HttpClient
             // Iterate through each statement and add it to the batch payload
             foreach ($queries as $stmt) {
                 /** @var HttpStatement $stmt */
-                \array_push($batchPayload, $this->_createRequest($stmt->sql, $stmt->args, $stmt->named_args));
+                \array_push($batchPayload, $this->_createRequest(\LIBSQL_EXECUTE, $stmt->sql, $stmt->args, $stmt->named_args));
             }
 
             // Add a commit request to the batch payload
-            \array_push($batchPayload, $this->_createRequest('COMMIT'));
+            \array_push($batchPayload, $this->_createRequest(\LIBSQL_EXECUTE, 'COMMIT'));
 
             // Execute the batch request asynchronously
             return $this->http->postAsync(\PIPE_LINE_ENDPOINT, [
@@ -157,7 +152,7 @@ trait HttpClient
             ])->then(
                 function (ResponseInterface $res) use ($batchPayload) {
                     // Handle the response from the start transaction request
-                    $beginResult = \map_results($res->getBody());
+                    $beginResult = map_results($res->getBody());
                     $trx = HttpResponse::create($beginResult['baton'], $beginResult['base_url'], $beginResult['results']);
 
                     // Execute the batch payload asynchronously
@@ -166,7 +161,7 @@ trait HttpClient
                     ])->then(
                         function (ResponseInterface $res) {
                             // Handle the response from the batch execution
-                            $transactionResults = \map_results($res->getBody());
+                            $transactionResults = map_results($res->getBody());
                             return HttpResponse::create($transactionResults['baton'], $transactionResults['base_url'], $transactionResults['results']);
                         },
                         function (RequestException $e) {
@@ -189,6 +184,30 @@ trait HttpClient
     }
 
     /**
+     * Execute multiple SQL statements in sequence.
+     * This method follow @link [Hrana Over HTTP - Sequence](https://github.com/tursodatabase/libsql/blob/main/docs/HRANA_3_SPEC.md#execute-a-sequence-of-sql-statements-1)
+     *
+     * @param string $sql The SQL statements to execute.
+     *
+     * @return void
+     *
+     * @throws LibsqlError If execution fails.
+     */
+    public function executeMultiple(string $sql): void
+    {
+        try {
+            $payload = $this->_createRequest(\LIBSQL_SEQUENCE, $sql);
+            $this->http->post(\PIPE_LINE_ENDPOINT, [
+                'json' => $payload
+            ]);
+        } catch (\Throwable $e) {
+            $this->_close();
+            // If execution fails, throw a LibsqlError
+            throw new LibsqlError($e->getMessage(), "MULTIPLE_EXEC_ERROR");
+        }
+    }
+
+    /**
      * Start a transaction with the specified mode.
      *
      * @param string $mode (Optional) The transaction mode read, write, and deferred. Default is 'write'.
@@ -200,9 +219,9 @@ trait HttpClient
     public function startTransaction(string $mode = 'write'): self
     {
         TransactionMode::checker($mode);
-        $request = $this->_createRequest(\transactionModeToBegin($mode));
+        $request = $this->_createRequest(\LIBSQL_EXECUTE, transactionModeToBegin($mode));
         $response = $this->runQuery($this->_makeRequest($request, false), true);
-        $data = \map_results($response->getBody());
+        $data = map_results($response->getBody());
         $this->baton = $data['baton'];
         return $this;
     }
@@ -216,7 +235,7 @@ trait HttpClient
      */
     public function addTransaction(HttpStatement $query): self
     {
-        \array_push($this->collectors, $this->_createRequest($query->sql, $query->args, $query->named_args));
+        \array_push($this->collectors, $this->_createRequest(\LIBSQL_EXECUTE, $query->sql, $query->args, $query->named_args));
         return $this;
     }
 
@@ -229,7 +248,7 @@ trait HttpClient
     {
         \array_push($this->collectors, $this->_rawCommit());
         $response = $this->runQuery($this->_makeRequest($this->collectors, true, $this->baton), true);
-        $data = \map_results($response->getBody());
+        $data = map_results($response->getBody());
         return HttpResponse::create($data['baton'], $data['base_url'], $data['results']);
     }
 
@@ -238,12 +257,12 @@ trait HttpClient
      */
     public function rollback(): void
     {
-        $this->runQuery($this->_makeRequest($this->_createRequest('ROLLBACK'), true, $this->baton));
+        $this->runQuery($this->_makeRequest($this->_createRequest(\LIBSQL_EXECUTE, 'ROLLBACK'), true, $this->baton));
     }
 
     private function _rawRollback(): array
     {
-        return $this->_createRequest('ROLLBACK');
+        return $this->_createRequest(\LIBSQL_EXECUTE, 'ROLLBACK');
     }
 
     /**
@@ -251,12 +270,12 @@ trait HttpClient
      */
     public function commit(): void
     {
-        $this->runQuery($this->_makeRequest($this->_createRequest('COMMIT'), true, $this->baton));
+        $this->runQuery($this->_makeRequest($this->_createRequest(\LIBSQL_EXECUTE, 'COMMIT'), true, $this->baton));
     }
 
     private function _rawCommit(): array
     {
-        return $this->_createRequest('COMMIT');
+        return $this->_createRequest(\LIBSQL_EXECUTE, 'COMMIT');
     }
 
     /**
@@ -265,6 +284,12 @@ trait HttpClient
     public function close(): void
     {
         $this->runQuery($this->_makeRequest($this->_close()));
+    }
+
+    public function version(): string
+    {
+        $response = $this->http->get(\VERSION_ENDPOINT);
+        return $response->getBody();
     }
 
     /**
@@ -282,7 +307,7 @@ trait HttpClient
         ]);
 
         if ($trace === false) {
-            $data = \map_results($response->getBody());
+            $data = map_results($response->getBody());
             return HttpResponse::create($data['baton'], $data['base_url'], $data['results']);
         }
 
@@ -325,12 +350,13 @@ trait HttpClient
      */
     private function _close(): array
     {
-        return ["type" => "close"];
+        return ["type" => \LIBSQL_CLOSE];
     }
 
     /**
      * Create a request array for execution with the provided SQL statement and arguments.
      *
+     * @param string $type The type statement to execute.
      * @param string $sql The SQL statement to execute.
      * @param array|null $args (Optional) The arguments for the SQL statement.
      * @param bool|null $named_args (Optional) Whether the arguments are named or positional.
@@ -338,13 +364,14 @@ trait HttpClient
      * @return array The request array for execution.
      */
     private function _createRequest(
+        string $type = \LIBSQL_EXECUTE,
         string $sql,
         ?array $args = [],
         ?bool $named_args = false
     ): array {
         // Initialize the execute request array
         $executeRequest = [
-            "type" => "execute",
+            "type" => $type,
             "stmt" => [
                 "sql" => $sql
             ]
@@ -451,7 +478,7 @@ trait HttpClient
     private function _typeParser(mixed $value): string
     {
         // Check the type of the value using the provided function
-        $type = \checkColumnType($value);
+        $type = checkColumnType($value);
 
         // Throw an error if the type is unknown
         if ($type === 'unknown') {
