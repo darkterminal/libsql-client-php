@@ -4,7 +4,6 @@ namespace Darkterminal\LibSQL\Types;
 
 use Darkterminal\LibSQL\Traits\MapResults;
 use Darkterminal\LibSQL\Utils\Exceptions\LibsqlError;
-use LibSQLResult;
 
 /**
  * Represents an HTTP response from LibSQL Server with necessary data.
@@ -70,7 +69,7 @@ class HttpResponse
         return [
             'baton' => $this->baton,
             'base_url' => $this->base_url,
-            'results' => $this->results
+            'results' => \objectToArray($this->results)
         ];
     }
 
@@ -86,7 +85,8 @@ class HttpResponse
 
     public function first(): self
     {
-        $result = \current($this->results);
+        $data = \objectToArray($this->results);
+        $result = \current($data);
         return new self(
             $this->baton,
             $this->base_url,
@@ -103,21 +103,21 @@ class HttpResponse
     /**
      * Fetch the results in the specified format.
      *
-     * @param LibSQLResult $type (Optional) The format in which to fetch the results. Default is LibSQLResult::FETCH_ASSOC.
+     * @param int $type (Optional) The format in which to fetch the results. Default is LibSQLResult::FETCH_ASSOC.
      *
      * @return array|string The fetched results.
      *
      * @throws LibsqlError If an undefined fetch option is provided.
      */
-    public function fetch(LibSQLResult $type = LibSQLResult::FETCH_ASSOC): array|string
+    public function fetch(int $type = LibSQLResult::FETCH_ASSOC): array|string
     {
-        $result = \current($this->results);
+        $results = objectToArray($this->results);
         switch ($type) {
             case LibSQLResult::FETCH_ASSOC:
-                return $this->fetchArray($result);
+                return $this->fetchArray($results);
                 break;
             case LibSQLResult::FETCH_OBJ:
-                return $this->fetchObject($result);
+                return $this->fetchObject($results);
                 break;
 
             default:
