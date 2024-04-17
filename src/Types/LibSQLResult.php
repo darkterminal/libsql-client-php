@@ -1,5 +1,6 @@
 <?php
 
+namespace Darkterminal\LibSQL\Types;
 /**
  * Class LibSQLResult
  *
