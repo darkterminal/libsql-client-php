@@ -10,14 +10,6 @@ use Darkterminal\LibSQL\Types\Uri;
 use Darkterminal\LibSQL\Types\UserInfo;
 use Darkterminal\LibSQL\Utils\Exceptions\LibsqlError;
 
-// Regular Expression for parsing URI
-define('URI_RE', '/^(?<scheme>[A-Za-z][A-Za-z.+-]*):(\/\/(?<authority>[^\/?#]*))?(?<path>[^?#]*)(\?(?<query>[^#]*))?(#(?<fragment>.*))?$/');
-// Regular Expression for parsing authority part of URL
-define('AUTHORITY_RE', '/^((?<username>[^:]*)(:(?<password>.*))?@)?((?<host>[^:\[\]]*)|(\[(?<host_br>[^\[\]]*)\]))(:(?<port>[0-9]*))?$/');
-define('SUPPORTED_URL_LINK', "https://github.com/libsql/libsql-client-php#supported-urls");
-define('TURSO', 'turso.io');
-define('PIPE_LINE_ENDPOINT', '/v3/pipeline');
-
 /**
  * Convert transaction mode to BEGIN statement.
  *
@@ -54,7 +46,7 @@ function expandConfig(array $config, bool $preferHttp): ExpandedConfig
 {
     // Ensure the provided configuration is an array
     if (!is_array($config)) {
-        throw new TypeError('Expected client configuration as array, got ' . gettype($config));
+        throw new LibsqlError('Expected client configuration as array, got ' . gettype($config), "LIBSQL_CONFIG_ERROR");
     }
 
     // Extract configuration parameters
@@ -338,7 +330,7 @@ function encodeUserInfo(?UserInfo $userInfo): string
 
 /**
  * Check if a string is base64 encoded.
- * @link https://stackoverflow.com/a/10797086
+ * @link https://stackoverflow.com/a/38627879/12439522
  *
  * @param string $data The string to check.
  *
@@ -346,7 +338,12 @@ function encodeUserInfo(?UserInfo $userInfo): string
  */
 function is_base64($string)
 {
-    return base64_encode(base64_decode($string, true)) === $string;
+    $decoded_data = base64_decode($string, true);
+    $encoded_data = base64_encode($decoded_data);
+    if ($encoded_data != $string) return false;
+    else if (!ctype_print($decoded_data)) return false;
+
+    return true;
 }
 
 /**
@@ -357,9 +354,8 @@ function is_base64($string)
  */
 function checkColumnType(mixed $column): string
 {
-    $column = strlen($column) < 5 && gettype($column) === 'string' ? "#$column#" : $column;
-
     $type = 'unknown';
+
     if (is_float($column)) {
         $type = 'float';
     } else if (is_base64($column)) {
@@ -439,3 +435,10 @@ function map_results(string $data): array
     return $mapped_results;
 }
 
+function objectToArray($object)
+{
+    if (!is_object($object) && !is_array($object))
+        return $object;
+
+    return array_map('objectToArray', (array) $object);
+}
