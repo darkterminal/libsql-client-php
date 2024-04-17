@@ -25,7 +25,7 @@ class LibSQL
      */
     public function __construct(array $config)
     {
-        $this->createClient(\expandConfig($config, true));
+        $this->createClient(expandConfig($config, true));
     }
 
     /**
@@ -50,7 +50,7 @@ class LibSQL
                 throw new LibsqlError('A "https:" URL cannot opt out of TLS by using ?tls=0', "URL_INVALID");
             }
 
-            $url = \encodeBaseUrl($config->scheme, $config->authority, $config->path);
+            $url = encodeBaseUrl($config->scheme, $config->authority, $config->path);
             $this->setup($url, $config->authToken);
         } else {
             throw new LibsqlError('The "file" uri is not supported yet!', "FILE_INVALID");
