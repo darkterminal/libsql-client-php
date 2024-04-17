@@ -1,30 +1,31 @@
-# Class: TransactionMode
+# TransactionMode
 
-The `TransactionMode` class provides constants representing transaction modes for database operations.
+The TransactionMode class provides constants representing transaction modes for database operations.
 
-### Constants:
+## Namespace:
+- Darkterminal\LibSQL\Types
 
-- `write` (string): Represents the write transaction mode.
-- `read` (string): Represents the read transaction mode.
-- `deferred` (string): Represents the deferred transaction mode.
+## Uses:
+- ReflectionClass from PHP Standard Library
+- LibsqlError exception
 
-These constants define different transaction modes for database operations, allowing developers to specify the appropriate mode for their transactions.
+## Properties:
+None
 
-### Method: checker
+## Methods:
+- **public static** - `checker`
+Description: Checks if the given transaction mode is valid.
+Parameters:
+  - mode (string) - The transaction mode to check.
+Returns: The valid transaction mode if it exists.
+Throws: LibsqlError if the transaction mode is not supported.
 
-```php
-public static function checker(string $mode): string
-```
+## Constants:
+- **write** (string) - Represents the write transaction mode.
+- **read** (string) - Represents the read transaction mode.
+- **deferred** (string) - Represents the deferred transaction mode.
 
-Checks if the given transaction mode is valid.
+---
 
-#### Parameters:
-- `$mode` (string): The transaction mode to check.
-
-#### Returns:
-- (string): The validated transaction mode.
-
-#### Throws:
-- `LibsqlError`: If an invalid transaction mode is provided.
-
-This method ensures that only valid transaction modes are accepted and throws an error if an invalid mode is provided.
+## Overview:
+The `TransactionMode` class provides constants representing transaction modes for database operations, including write, read, and deferred. It also provides a `checker` method to validate transaction modes. If an invalid transaction mode is provided, it throws a `LibsqlError` exception.

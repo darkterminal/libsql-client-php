@@ -1,61 +1,39 @@
-# Class: KeyValue
+# KeyValue
 
 Represents a key-value pair in a query string.
 
-### Properties:
+## Namespace:
+- Darkterminal\LibSQL\Types
 
-- `$key` (string): The key of the key-value pair.
-- `$value` (string): The value of the key-value pair.
+## Uses:
+- None
 
-### Constructor
+## Properties:
+- **key** (string) - The key of the key-value pair.
+- **value** (string) - The value of the key-value pair.
 
-```php
-__construct(
-    string $key,
-    string $value
-)
-```
+## Methods:
+- **public** - `__construct`
+Description: Constructs a new KeyValue instance.
+Parameters:
+  - key (string) - The key of the key-value pair.
+  - value (string) - The value of the key-value pair.
 
-#### Parameters:
-- `$key` (string): The key of the key-value pair.
-- `$value` (string): The value of the key-value pair.
+- **public static** - `create`
+Description: Creates a new KeyValue instance.
+Parameters:
+  - key (string) - The key of the key-value pair.
+  - value (string) - The value of the key-value pair.
 
-### Static Method: create
+- **public** - `toArray`
+Description: Convert the KeyValue object to an array.
+Returns: An array representation of the KeyValue object.
 
-```php
-public static function create(
-    string $key,
-    string $value
-): self
-```
+- **public** - `toObject`
+Description: Converts the KeyValue instance to a JSON string.
+Returns: The JSON representation of the KeyValue instance.
 
-Creates a new `KeyValue` instance.
+---
 
-#### Parameters:
-- `$key` (string): The key of the key-value pair.
-- `$value` (string): The value of the key-value pair.
-
-#### Returns:
-- (`KeyValue`): The created `KeyValue` instance.
-
-### Method: toArray
-
-```php
-public function toArray(): array
-```
-
-Converts the `KeyValue` instance to an associative array.
-
-#### Returns:
-- (array): The array representation of the `KeyValue` instance.
-
-### Method: toObject
-
-```php
-public function toObject(): string
-```
-
-Converts the `KeyValue` instance to a JSON string.
-
-#### Returns:
-- (string): The JSON representation of the `KeyValue` instance.
+## Overview:
+The `KeyValue` class represents a key-value pair in a query string. It contains properties such as the key and value. This class provides methods to create a KeyValue object, convert it to an array or JSON string.

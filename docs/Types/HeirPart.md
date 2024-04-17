@@ -1,60 +1,39 @@
-# Class: HierPart
+# HierPart
 
-Represents the hierarchical part of a Uniform Resource Identifier (URI).
+Represents the hierarchical part of a URI.
 
-### Constructor
+## Namespace:
+- Darkterminal\LibSQL\Types
 
-```php
-__construct(
-    ?Authority $authority,
-    string $path
-)
-```
+## Uses:
+- Authority
 
-#### Parameters:
-- `$authority` (Authority|null): An instance of the `Authority` class representing the authority part of the URI (nullable).
-- `$path` (string): The path part of the URI.
+## Properties:
+- **authority** (Authority|null) - The authority part of the hierarchical part, or null if not specified.
+- **path** (string) - The path part of the hierarchical part.
 
-### Static Method: create
+## Methods:
+- **public** - `__construct`
+Description: Constructs a new HierPart object.
+Parameters:
+  - authority (Authority|null) - The authority part of the hierarchical part, or null if not specified.
+  - path (string) - The path part of the hierarchical part.
 
-```php
-public static function create(
-    ?Authority $authority,
-    string $path
-): self
-```
+- **public static** - `create`
+Description: Creates a new HierPart object.
+Parameters:
+  - authority (Authority|null) - The authority part of the hierarchical part, or null if not specified.
+  - path (string) - The path part of the hierarchical part.
 
-Creates a new `HierPart` instance.
+- **public** - `toArray`
+Description: Convert the HierPart object to an array.
+Returns: An array representation of the HierPart object.
 
-#### Parameters:
-- `$authority` (Authority|null): An instance of the `Authority` class representing the authority part of the URI (nullable).
-- `$path` (string): The path part of the URI.
-
-#### Returns:
-- (`HierPart`): A new `HierPart` instance.
-
-### Method: toArray
-
-```php
-public function toArray(): array
-```
-
-Converts the `HierPart` object to an associative array.
-
-#### Returns:
-- (array): An array representation of the `HierPart` object.
-
-### Method: toObject
-
-```php
-public function toObject(): string
-```
-
-Converts the `HierPart` object to a JSON string.
-
-#### Returns:
-- (string): The JSON representation of the `HierPart` object.
+- **public** - `toObject`
+Description: Converts the HierPart instance to a JSON string.
+Returns: The JSON representation of the HierPart instance.
 
 ---
 
-This documentation provides an overview of the `HierPart` class, including its constructor, static method, and methods, facilitating ease of use for developers integrating the class into their projects.
+## Overview:
+The `HierPart` class represents the hierarchical part of a URI. It contains properties such as the authority and the path. This class provides methods to create a HierPart object, convert it to an array, and serialize it to JSON.

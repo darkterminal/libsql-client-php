@@ -1,60 +1,42 @@
-# Class: Authority
+# Authority
 
-Represents the authority part of a Uniform Resource Identifier (URI).
+Represents the authority part of a URI.
 
-### Constructor
+## Namespace:
+- Darkterminal\LibSQL\Types
 
-```php
-__construct(
-    string $host,
-    ?int $port,
-    ?UserInfo $userInfo
-)
-```
+## Uses:
+- UserInfo
 
-#### Parameters:
-- `$host` (string): The hostname or IP address of the authority.
-- `$port` (int|null): The port number of the authority (nullable).
-- `$userInfo` (UserInfo|null): An optional instance of the `UserInfo` class representing user information associated with the authority.
+## Properties:
+- **host** (string) - The host part of the authority.
+- **port** (int|null) - The port part of the authority, or null if not specified.
+- **userInfo** (UserInfo|null) - The user information part of the authority, or null if not specified.
 
-### Static Method: create
+## Methods:
+- **public** - `__construct`
+Description: Constructs a new Authority object.
+Parameters:
+  - host (string) - The host part of the authority.
+  - port (int|null) - The port part of the authority, or null if not specified.
+  - userInfo (UserInfo|null) - The user information part of the authority, or null if not specified.
 
-```php
-public static function create(
-    string $host,
-    ?int $port,
-    ?UserInfo $userInfo
-): self
-```
+- **public static** - `create`
+Description: Creates a new Authority object.
+Parameters:
+  - host (string) - The host part of the authority.
+  - port (int|null) - The port part of the authority, or null if not specified.
+  - userInfo (UserInfo|null) - The user information part of the authority, or null if not specified.
 
-Creates a new `Authority` instance.
+- **public** - `toArray`
+Description: Convert the Authority object to an array.
+Returns: An array representation of the Authority object.
 
-#### Parameters:
-- `$host` (string): The hostname or IP address of the authority.
-- `$port` (int|null): The port number of the authority (nullable).
-- `$userInfo` (UserInfo|null): An optional instance of the `UserInfo` class representing user information associated with the authority.
+- **public** - `toObject`
+Description: Converts the Authority instance to a JSON string.
+Returns: The JSON representation of the Authority instance.
 
-#### Returns:
-- (`Authority`): A new `Authority` instance.
+---
 
-### Method: toArray
-
-```php
-public function toArray(): array
-```
-
-Converts the `Authority` object to an associative array.
-
-#### Returns:
-- (array): An array representation of the `Authority` object.
-
-### Method: toObject
-
-```php
-public function toObject(): string
-```
-
-Converts the `Authority` object to a JSON string.
-
-#### Returns:
-- (string): The JSON representation of the `Authority` object.
+## Overview:
+The `Authority` class represents the authority part of a URI. It contains properties such as the host, port, and user information. This class provides methods to create an Authority object, convert it to an array, and serialize it to JSON.

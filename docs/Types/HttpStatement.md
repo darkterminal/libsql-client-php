@@ -1,66 +1,42 @@
-# Class: HttpStatement
+# HttpStatement
 
 Represents an HTTP statement with SQL and optional arguments.
 
-### Properties:
+## Namespace:
+- Darkterminal\LibSQL\Types
 
-- `$sql` (string): The SQL statement.
-- `$args` (array|null): The optional arguments for the SQL statement.
-- `$named_args` (bool|null): Indicates whether the arguments for the SQL statement are named.
+## Uses:
+- None
 
-### Constructor
+## Properties:
+- **sql** (string) - The SQL statement.
+- **args** (array|null) - The optional arguments for the SQL statement.
+- **named_args** (bool|null) - Indicates whether the arguments are named or positional.
 
-```php
-__construct(
-    string $sql,
-    ?array $args = [],
-    ?bool $named_args = false
-)
-```
+## Methods:
+- **public** - `__construct`
+Description: Constructs a new HttpStatement instance.
+Parameters:
+  - sql (string) - The SQL statement.
+  - args (array|null) - The optional arguments for the SQL statement.
+  - named_args (bool|null) - Indicates whether the arguments are named or positional.
 
-#### Parameters:
-- `$sql` (string): The SQL statement.
-- `$args` (array|null): The optional arguments for the SQL statement (default: `[]`).
-- `$named_args` (bool|null): Indicates whether the arguments for the SQL statement are named (default: `false`).
+- **public static** - `create`
+Description: Creates a new HttpStatement instance.
+Parameters:
+  - sql (string) - The SQL statement.
+  - args (array|null) - The optional arguments for the SQL statement.
+  - named_args (bool|null) - Indicates whether the arguments are named or positional.
 
-### Static Method: create
+- **public** - `toArray`
+Description: Convert the HttpStatement instance to an array.
+Returns: The array representation of the HttpStatement instance.
 
-```php
-public static function create(
-    string $sql,
-    ?array $args = [],
-    ?bool $named_args = false
-): self
-```
+- **public** - `toObject`
+Description: Converts the HttpStatement instance to a JSON string.
+Returns: The JSON representation of the HttpStatement instance.
 
-Creates a new `HttpStatement` instance.
+---
 
-#### Parameters:
-- `$sql` (string): The SQL statement.
-- `$args` (array|null): The optional arguments for the SQL statement (default: `[]`).
-- `$named_args` (bool|null): Indicates whether the arguments for the SQL statement are named (default: `false`).
-
-#### Returns:
-- (`HttpStatement`): The created `HttpStatement` instance.
-
-### Method: toArray
-
-```php
-public function toArray(): array
-```
-
-Converts the `HttpStatement` instance to an associative array.
-
-#### Returns:
-- (array): The array representation of the `HttpStatement` instance.
-
-### Method: toObject
-
-```php
-public function toObject(): string
-```
-
-Converts the `HttpStatement` instance to a JSON string.
-
-#### Returns:
-- (string): The JSON representation of the `HttpStatement` instance.
+## Overview:
+The `HttpStatement` class represents an HTTP statement with SQL and optional arguments. It contains properties such as the SQL statement, optional arguments, and whether the arguments are named or positional. This class provides methods to create an HttpStatement object, convert it to an array or JSON string.

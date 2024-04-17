@@ -1,94 +1,55 @@
-# Class: HttpResponse
+# HttpResponse
 
 Represents an HTTP response from LibSQL Server with necessary data.
 
-### Properties:
+## Namespace:
+- Darkterminal\LibSQL\Types
 
-- `$baton` (string|null): The baton identifier.
-- `$base_url` (string|null): The base URL for the HTTP response.
-- `$results` (array|HttpResultSets): The HTTP result sets.
+## Uses:
+- MapResults trait
+- HttpResultSets class
+- LibsqlError exception
 
-### Constructor
+## Properties:
+- **baton** (string|null) - The baton identifier.
+- **base_url** (string|null) - The base URL for the HTTP response.
+- **results** (array|HttpResultSets) - The HTTP result sets.
 
-```php
-__construct(
-    string|null $baton,
-    string|null $base_url,
-    array|HttpResultSets $results
-)
-```
+## Methods:
+- **public** - `__construct`
+Description: Constructs a new HttpResponse instance.
+Parameters:
+  - baton (string|null) - The baton identifier.
+  - base_url (string|null) - The base URL for the HTTP response.
+  - results (array|HttpResultSets) - The HTTP result sets.
 
-#### Parameters:
-- `$baton` (string|null): The baton identifier.
-- `$base_url` (string|null): The base URL for the HTTP response.
-- `$results` (array|HttpResultSets): The HTTP result sets.
+- **public static** - `create`
+Description: Creates a new HttpResponse instance.
+Parameters:
+  - baton (string|null) - The baton identifier.
+  - base_url (string|null) - The base URL for the HTTP response.
+  - results (array|HttpResultSets) - The HTTP result sets.
 
-### Static Method: create
+- **public** - `toArray`
+Description: Convert the HttpResponse instance to an array.
+Returns: The array representation of the HttpResponse instance.
 
-```php
-public static function create(
-    string|null $baton,
-    string|null $base_url,
-    array|HttpResultSets $results
-): self
-```
+- **public** - `toObject`
+Description: Converts the HttpResponse instance to a JSON string.
+Returns: The JSON representation of the HttpResponse instance.
 
-Creates a new `HttpResponse` instance.
+- **public** - `first`
+Description: Returns the first result from the HTTP response.
+Returns: A new HttpResponse instance containing the first result.
 
-#### Parameters:
-- `$baton` (string|null): The baton identifier.
-- `$base_url` (string|null): The base URL for the HTTP response.
-- `$results` (array|HttpResultSets): The HTTP result sets.
+- **public** - `fetch`
+Description: Fetches the results in the specified format.
+Parameters:
+  - type (int) (Optional) - The format in which to fetch the results. Default is LibSQLResult::FETCH_ASSOC.
+Returns: The fetched results.
+Throws: LibsqlError if an undefined fetch option is provided.
 
-#### Returns:
-- (`HttpResponse`): The created `HttpResponse` instance.
+---
 
-### Method: toArray
-
-```php
-public function toArray(): array
-```
-
-Converts the `HttpResponse` instance to an associative array.
-
-#### Returns:
-- (array): The array representation of the `HttpResponse` instance.
-
-### Method: toObject
-
-```php
-public function toObject(): string
-```
-
-Converts the `HttpResponse` instance to a JSON string.
-
-#### Returns:
-- (string): The JSON representation of the `HttpResponse` instance.
-
-### Method: first
-
-```php
-public function first(): self
-```
-
-Gets the first result from the HTTP response.
-
-#### Returns:
-- (`HttpResponse`): A new `HttpResponse` instance containing the first result.
-
-### Method: fetch
-
-```php
-public function fetch(LibSQLResult $type = LibSQLResult::FETCH_ASSOC): array|string
-```
-
-Fetches the results in the specified format.
-
-#### Parameters:
-- `$type` (LibSQLResult) (Optional): The format in which to fetch the results. Default is `LibSQLResult::FETCH_ASSOC`.
-
-#### Returns:
-- (array|string): The fetched results.
-
-#### Throws:
-- `LibsqlError`: If an undefined fetch option is provided.
+## Overview:
+The `HttpResponse` class represents an HTTP response from LibSQL Server. It contains properties such as the baton identifier, base URL, and HTTP result sets. This class provides methods to create an HttpResponse object, convert it to an array or JSON string, fetch results, and handle errors.

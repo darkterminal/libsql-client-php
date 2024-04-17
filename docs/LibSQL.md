@@ -1,41 +1,33 @@
-# Class: LibSQL
+# LibSQL
 
 The main class for interacting with the LibSQL service.
 
-### Constructor
+## Namespace:
+- `Darkterminal\LibSQL`
 
-```php
-__construct(
-    array $config
-) throws LibsqlError
-```
+## Uses:
+- `Darkterminal\LibSQL\Providers\HttpClient`
+- `Darkterminal\LibSQL\Types\ExpandedConfig`
+- `Darkterminal\LibSQL\Types\ExpandedScheme`
+- `Darkterminal\LibSQL\Utils\Exceptions\LibsqlError`
 
-Constructs a new `LibSQL` instance.
+## Properties:
+- None
 
-#### Parameters:
-- `$config` (array): The configuration array for the LibSQL service.
+## Methods:
 
-#### Throws:
-- `LibsqlError`: If there is an error creating the HTTP client.
+### public function __construct(array $config)
+**Description:** Constructs a new LibSQL instance.
 
-### Method: createClient
+**Link:** N/A
 
-```php
-protected function createClient(
-    ExpandedConfig $config
-) throws LibsqlError
-```
+**Parameters:**
+- `$config`: The configuration array for the LibSQL service.
 
-Creates the HTTP client based on the expanded configuration.
+### protected function createClient(ExpandedConfig $config): void
+**Description:** Creates the HTTP client based on the expanded configuration.
 
-#### Parameters:
-- `$config` (ExpandedConfig): The expanded configuration object.
+**Link:** N/A
 
-#### Throws:
-- `LibsqlError`: If the URL scheme is not supported or if there is an issue with the TLS configuration.
-
-### Overview:
-
-- This class provides functionality for creating an HTTP client based on the provided configuration.
-- It supports different URL schemes such as "libsql:", "https:", and "http:".
-- It handles errors related to unsupported URL schemes and TLS configurations.
+**Parameters:**
+- `$config`: The expanded configuration object.

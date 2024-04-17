@@ -1,11 +1,25 @@
-# Class: LibSQLResult
+# LibSQLResult
 
 Represents different formats for fetching SQL results.
 
-### Constants:
+## Namespace:
+- Darkterminal\LibSQL\Types
 
-- `FETCH_ASSOC` (int): Represents fetching SQL results as an associative array.
-- `FETCH_OBJ` (int): Represents fetching SQL results as objects.
-- `FETCH_RAW` (int): Represents fetching SQL results as raw data.
+## Uses:
+- None
 
-These constants define different formats for fetching SQL results, allowing developers to choose the most suitable format for their needs.
+## Properties:
+None
+
+## Methods:
+None
+
+## Constants:
+- **FETCH_ASSOC** (int) - Represents the associative array format for fetching SQL results.
+- **FETCH_OBJ** (int) - Represents the object format for fetching SQL results.
+- **FETCH_RAW** (int) - Represents the raw format for fetching SQL results.
+
+---
+
+## Overview:
+The `LibSQLResult` class represents different formats for fetching SQL results. It provides constants such as `FETCH_ASSOC`, `FETCH_OBJ`, and `FETCH_RAW`, which can be used to specify the format in which SQL results should be fetched.

@@ -1,13 +1,27 @@
-# Class: ExpandedScheme
+# ExpandedScheme
 
-The `ExpandedScheme` class provides constants representing expanded schemes for various protocols.
+The ExpandedScheme class provides constants representing expanded schemes for various protocols.
 
-### Constants:
+## Namespace:
+- Darkterminal\LibSQL\Types
 
-- `wss` (string): Represents the WebSocket Secure (WSS) protocol.
-- `ws` (string): Represents the WebSocket (WS) protocol.
-- `https` (string): Represents the Hypertext Transfer Protocol Secure (HTTPS) protocol.
-- `http` (string): Represents the Hypertext Transfer Protocol (HTTP) protocol.
-- `file` (string): Represents the File Transfer Protocol (FTP) protocol.
+## Uses:
+None
 
-These constants can be used to specify the scheme part of a Uniform Resource Identifier (URI) when constructing URIs or working with URI-related functionality.
+## Properties:
+None
+
+## Methods:
+None
+
+## Constants:
+- **wss** (string) - Represents the wss scheme.
+- **ws** (string) - Represents the ws scheme.
+- **https** (string) - Represents the https scheme.
+- **http** (string) - Represents the http scheme.
+- **file** (string) - Represents the file scheme.
+
+---
+
+## Overview:
+The `ExpandedScheme` class provides constants representing expanded schemes for various protocols such as wss, ws, https, http, and file. These constants can be used to reference these schemes throughout the application.

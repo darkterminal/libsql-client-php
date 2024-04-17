@@ -1,76 +1,54 @@
-# Class: ExpandedConfig
+# ExpandedConfig
 
 Represents an expanded configuration object.
 
-### Constructor
+## Namespace:
+- Darkterminal\LibSQL\Types
 
-```php
-__construct(
-    string $scheme,
-    bool $tls = false,
-    ?Authority $authority = null,
-    string $path,
-    ?string $authToken = null,
-    ?string $syncUrl = null,
-    ?int $syncInterval = null
-)
-```
+## Uses:
+- Authority
 
-#### Parameters:
-- `$scheme` (string): The scheme part of the URI.
-- `$tls` (bool): Indicates whether TLS is enabled (default: false).
-- `$authority` (Authority|null): An instance of the `Authority` class representing the authority part of the URI (nullable).
-- `$path` (string): The path part of the URI.
-- `$authToken` (string|null): Authentication token for the configuration (nullable).
-- `$syncUrl` (string|null): URL of a remote server to synchronize with (nullable).
-- `$syncInterval` (int|null): Sync interval in seconds (nullable).
+## Properties:
+- **scheme** (string) - The scheme part of the configuration.
+- **tls** (bool) - Indicates whether TLS is enabled.
+- **authority** (Authority|null) - The authority part of the configuration, or null if not specified.
+- **path** (string) - The path part of the configuration.
+- **authToken** (string|null) - Authentication token for the configuration.
+- **syncUrl** (string|null) - URL of a remote server to synchronize configuration with.
+- **syncInterval** (int|null) - Sync interval in seconds.
 
-### Static Method: create
+## Methods:
+- **public** - `__construct`
+Description: Constructs a new ExpandedConfig object.
+Parameters:
+  - scheme (string) - The scheme part of the configuration.
+  - tls (bool) - Indicates whether TLS is enabled.
+  - authority (Authority|null) - The authority part of the configuration, or null if not specified.
+  - path (string) - The path part of the configuration.
+  - authToken (string|null) - Authentication token for the configuration.
+  - syncUrl (string|null) - URL of a remote server to synchronize configuration with.
+  - syncInterval (int|null) - Sync interval in seconds.
 
-```php
-public static function create(
-    string $scheme,
-    bool $tls = false,
-    ?Authority $authority,
-    string $path,
-    ?string $authToken = null,
-    ?string $syncUrl = null,
-    ?int $syncInterval = null
-): self
-```
+- **public static** - `create`
+Description: Creates a new ExpandedConfig object.
+Parameters:
+  - scheme (string) - The scheme part of the configuration.
+  - tls (bool) - Indicates whether TLS is enabled.
+  - authority (Authority|null) - The authority part of the configuration, or null if not specified.
+  - path (string) - The path part of the configuration.
+  - authToken (string|null) - Authentication token for the configuration.
+  - syncUrl (string|null) - URL of a remote server to synchronize configuration with.
+  - syncInterval (int|null) - Sync interval in seconds.
 
-Creates a new `ExpandedConfig` instance.
+- **public** - `toArray`
+Description: Convert the ExpandedConfig object to an array.
+Returns: An array representation of the ExpandedConfig object.
 
-#### Parameters:
-- `$scheme` (string): The scheme part of the URI.
-- `$tls` (bool): Indicates whether TLS is enabled (default: false).
-- `$authority` (Authority|null): An instance of the `Authority` class representing the authority part of the URI (nullable).
-- `$path` (string): The path part of the URI.
-- `$authToken` (string|null): Authentication token for the configuration (nullable).
-- `$syncUrl` (string|null): URL of a remote server to synchronize with (nullable).
-- `$syncInterval` (int|null): Sync interval in seconds (nullable).
+- **public** - `toObject`
+Description: Converts the ExpandedConfig instance to a JSON string.
+Returns: The JSON representation of the ExpandedConfig instance.
 
-#### Returns:
-- (`ExpandedConfig`): A new `ExpandedConfig` instance.
+---
 
-### Method: toArray
-
-```php
-public function toArray(): array
-```
-
-Converts the `ExpandedConfig` object to an associative array.
-
-#### Returns:
-- (array): An array representation of the `ExpandedConfig` object.
-
-### Method: toObject
-
-```php
-public function toObject(): string
-```
-
-Converts the `ExpandedConfig` object to a JSON string.
-
-#### Returns:
-- (string): The JSON representation of the `ExpandedConfig` object.
+## Overview:
+The `ExpandedConfig` class represents an expanded configuration object. It contains properties such as the scheme, TLS flag, authority, path, authentication token, synchronization URL, and synchronization interval. This class provides methods to create an ExpandedConfig object, convert it to an array, and serialize it to JSON.

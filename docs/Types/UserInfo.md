@@ -1,61 +1,39 @@
-# Class: UserInfo
+# UserInfo
 
-Represents the userInfo part of a Uniform Resource Identifier (URI) authority.
+Represents the userInfo part of a URI authority.
 
-### Properties:
+## Namespace:
+- Darkterminal\LibSQL\Types
 
-- `$username` (string|null): The username component of the userInfo part.
-- `$password` (string|null): The password component of the userInfo part.
+## Uses:
+- None
 
-### Constructor
+## Properties:
+- **username** (string|null) - The username part of the userInfo.
+- **password** (string|null) - The password part of the userInfo.
 
-```php
-__construct(
-    string|null $username,
-    ?string $password = ''
-)
-```
+## Methods:
+- **public** - `__construct`
+Description: Constructs a new UserInfo instance.
+Parameters:
+  - username (string|null) - The username part of the userInfo.
+  - password (string|null) - The password part of the userInfo.
 
-#### Parameters:
-- `$username` (string|null): The username component of the userInfo part.
-- `$password` (string|null): The password component of the userInfo part (default: `''`).
+- **public static** - `create`
+Description: Creates a new UserInfo instance.
+Parameters:
+  - username (string|null) - The username part of the userInfo.
+  - password (string|null) - The password part of the userInfo.
 
-### Static Method: create
+- **public** - `toArray`
+Description: Convert the UserInfo object to an array.
+Returns: An array representation of the UserInfo object.
 
-```php
-public static function create(
-    string|null $username,
-    ?string $password = ''
-): self
-```
+- **public** - `toObject`
+Description: Converts the UserInfo instance to a JSON string.
+Returns: The JSON representation of the UserInfo instance.
 
-Creates a new `UserInfo` instance.
+---
 
-#### Parameters:
-- `$username` (string|null): The username component of the userInfo part.
-- `$password` (string|null): The password component of the userInfo part (default: `''`).
-
-#### Returns:
-- (`UserInfo`): The created `UserInfo` instance.
-
-### Method: toArray
-
-```php
-public function toArray(): array
-```
-
-Converts the `UserInfo` instance to an associative array.
-
-#### Returns:
-- (array): An array representation of the `UserInfo` instance.
-
-### Method: toObject
-
-```php
-public function toObject(): string
-```
-
-Converts the `UserInfo` instance to a JSON string.
-
-#### Returns:
-- (string): The JSON representation of the `UserInfo` instance.
+## Overview:
+The `UserInfo` class represents the userInfo part of a URI authority. It contains properties such as the username and password. This class provides methods to create a UserInfo object, convert it to an array or JSON string.

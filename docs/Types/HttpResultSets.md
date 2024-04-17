@@ -1,76 +1,48 @@
-# Class: HttpResultSets
+# HttpResultSets
 
 Represents a set of HTTP result data.
 
-### Properties:
+## Namespace:
+- Darkterminal\LibSQL\Types
 
-- `$cols` (array): The columns of the result set.
-- `$rows` (array): The rows of the result set.
-- `$affected_row_count` (int): The number of affected rows.
-- `$last_insert_rowid` (int|null): The last inserted row ID.
-- `$replication_index` (int|string): The replication index.
+## Uses:
+- None
 
-### Constructor
+## Properties:
+- **cols** (array) - The columns of the result set.
+- **rows** (array) - The rows of the result set.
+- **affected_row_count** (int) - The number of affected rows.
+- **last_insert_rowid** (int|null) - The last inserted row ID.
+- **replication_index** (int|string) - The replication index.
 
-```php
-__construct(
-    array $cols,
-    array $rows,
-    int $affected_row_count,
-    int|null $last_insert_rowid,
-    int|string $replication_index
-)
-```
+## Methods:
+- **public** - `__construct`
+Description: Constructs a new HttpResultSets instance.
+Parameters:
+  - cols (array) - The columns of the result set.
+  - rows (array) - The rows of the result set.
+  - affected_row_count (int) - The number of affected rows.
+  - last_insert_rowid (int|null) - The last inserted row ID.
+  - replication_index (int|string) - The replication index.
 
-#### Parameters:
-- `$cols` (array): The columns of the result set.
-- `$rows` (array): The rows of the result set.
-- `$affected_row_count` (int): The number of affected rows.
-- `$last_insert_rowid` (int|null): The last inserted row ID.
-- `$replication_index` (int|string): The replication index.
+- **public static** - `create`
+Description: Creates a new HttpResultSets instance.
+Parameters:
+  - cols (array) - The columns of the result set.
+  - rows (array) - The rows of the result set.
+  - affected_row_count (int) - The number of affected rows.
+  - last_insert_rowid (int|null) - The last inserted row ID.
+  - replication_index (int|string) - The replication index.
 
-### Static Method: create
+- **public** - `toArray`
+Description: Convert the HttpResultSets instance to an array.
+Returns: The array representation of the HttpResultSets instance.
 
-```php
-public static function create(
-    array $cols,
-    array $rows,
-    int $affected_row_count,
-    int|null $last_insert_rowid,
-    int|string $replication_index
-): self
-```
+- **public** - `toObject`
+Description: Converts the HttpResultSets instance to a JSON string.
+Returns: The JSON representation of the HttpResultSets instance.
 
-Creates a new `HttpResultSets` instance.
+---
 
-#### Parameters:
-- `$cols` (array): The columns of the result set.
-- `$rows` (array): The rows of the result set.
-- `$affected_row_count` (int): The number of affected rows.
-- `$last_insert_rowid` (int|null): The last inserted row ID.
-- `$replication_index` (int|string): The replication index.
-
-#### Returns:
-- (`HttpResultSets`): The created `HttpResultSets` instance.
-
-### Method: toArray
-
-```php
-public function toArray(): array
-```
-
-Converts the `HttpResultSets` instance to an associative array.
-
-#### Returns:
-- (array): The array representation of the `HttpResultSets` instance.
-
-### Method: toObject
-
-```php
-public function toObject(): string
-```
-
-Converts the `HttpResultSets` instance to a JSON string.
-
-#### Returns:
-- (string): The JSON representation of the `HttpResultSets` instance.
+## Overview:
+The `HttpResultSets` class represents a set of HTTP result data. It contains properties such as the columns, rows, affected row count, last inserted row ID, and replication index. This class provides methods to create an HttpResultSets object, convert it to an array or JSON string.

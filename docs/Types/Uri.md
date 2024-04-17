@@ -1,76 +1,48 @@
-# Class: Uri
+# Uri
 
-Represents a Uniform Resource Identifier (URI) object.
+Represents a URI object.
 
-### Properties:
+## Namespace:
+- Darkterminal\LibSQL\Types
 
-- `$scheme` (string): The scheme component of the URI.
-- `$authority` (Authority|null): The authority component of the URI.
-- `$path` (string): The path component of the URI.
-- `$query` (Query|null): The query component of the URI.
-- `$fragment` (string|null): The fragment component of the URI.
+## Uses:
+- None
 
-### Constructor
+## Properties:
+- **scheme** (string) - The scheme part of the URI.
+- **authority** (Authority|null) - The authority part of the URI.
+- **path** (string) - The path part of the URI.
+- **query** (Query|null) - The query part of the URI.
+- **fragment** (string|null) - The fragment part of the URI.
 
-```php
-__construct(
-    string $scheme,
-    ?Authority $authority = null,
-    string $path = '',
-    ?Query $query = null,
-    ?string $fragment = ''
-)
-```
+## Methods:
+- **public** - `__construct`
+Description: Constructs a new Uri instance.
+Parameters:
+  - scheme (string) - The scheme part of the URI.
+  - authority (Authority|null) - The authority part of the URI.
+  - path (string) - The path part of the URI.
+  - query (Query|null) - The query part of the URI.
+  - fragment (string|null) - The fragment part of the URI.
 
-#### Parameters:
-- `$scheme` (string): The scheme component of the URI.
-- `$authority` (Authority|null): The authority component of the URI (default: `null`).
-- `$path` (string): The path component of the URI (default: `''`).
-- `$query` (Query|null): The query component of the URI (default: `null`).
-- `$fragment` (string|null): The fragment component of the URI (default: `''`).
+- **public static** - `create`
+Description: Creates a new Uri instance.
+Parameters:
+  - scheme (string) - The scheme part of the URI.
+  - authority (Authority|null) - The authority part of the URI.
+  - path (string) - The path part of the URI.
+  - query (Query|null) - The query part of the URI.
+  - fragment (string|null) - The fragment part of the URI.
 
-### Static Method: create
+- **public** - `toArray`
+Description: Convert the Uri object to an array.
+Returns: An array representation of the Uri object.
 
-```php
-public static function create(
-    string $scheme,
-    ?Authority $authority = null,
-    string $path = '',
-    ?Query $query = null,
-    ?string $fragment = ''
-): self
-```
+- **public** - `toObject`
+Description: Converts the Uri instance to a JSON string.
+Returns: The JSON representation of the Uri instance.
 
-Creates a new `Uri` instance.
+---
 
-#### Parameters:
-- `$scheme` (string): The scheme component of the URI.
-- `$authority` (Authority|null): The authority component of the URI (default: `null`).
-- `$path` (string): The path component of the URI (default: `''`).
-- `$query` (Query|null): The query component of the URI (default: `null`).
-- `$fragment` (string|null): The fragment component of the URI (default: `''`).
-
-#### Returns:
-- (`Uri`): The created `Uri` instance.
-
-### Method: toArray
-
-```php
-public function toArray(): array
-```
-
-Converts the `Uri` instance to an associative array.
-
-#### Returns:
-- (array): An array representation of the `Uri` instance.
-
-### Method: toObject
-
-```php
-public function toObject(): string
-```
-
-Converts the `Uri` instance to a JSON string.
-
-#### Returns:
-- (string): The JSON representation of the `Uri` instance.
+## Overview:
+The `Uri` class represents a URI object. It contains properties such as the scheme, authority, path, query, and fragment parts of the URI. This class provides methods to create a Uri object, convert it to an array or JSON string.
