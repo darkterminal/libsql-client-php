@@ -14,6 +14,7 @@ $db = new LibSQL($config);
 
 if ($db->connect()) {
     echo "Connection Establised!" . PHP_EOL;
+    echo "--- " . $db->version() . " ---" . PHP_EOL;
 }
 
 // Start a new transaction

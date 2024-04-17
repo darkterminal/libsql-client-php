@@ -14,12 +14,13 @@ $db = new LibSQL($config);
 
 if ($db->connect()) {
     echo "Connection Establised!" . PHP_EOL;
+    echo "--- " . $db->version() . " ---" . PHP_EOL;
 }
 
 // Batch Query Example
 $stmts = [
-    HttpStatement::create('INSERT INTO users (name, age, weight) VALUES (?, ?, ?)', ["Buku", 25, 45.5]),
-    HttpStatement::create('INSERT INTO users (name, age, weight) VALUES (?, ?, ?)', ["Bahu", 26, 64.45])
+    HttpStatement::create('INSERT INTO users (name, age, weight) VALUES (?, ?, ?)', ["Ramons", 32, 45.5]),
+    HttpStatement::create('INSERT INTO users (name, age, weight) VALUES (?, ?, ?)', ["Georgia", 43, 64.45])
 ];
 $results = $db->batch($stmts);
 print_r($results);
