@@ -3,5 +3,9 @@ vendor/
 .vscode/
 taggen
 .env
-
+libsql-php
 examples/*.db
+*.log
+*.db
+_intelephense_helper.php
+orchestrators/
