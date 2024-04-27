@@ -11,7 +11,7 @@
 
 <p align="center">
   <a href="https://turso.tech"><strong>Turso</strong></a> ·
-  <a href="/docs/README.md"><strong>Quickstart</strong></a> ·
+  <a href="/docs/Quickstart.md"><strong>Quickstart</strong></a> ·
   <a href="/examples"><strong>Examples</strong></a> ·
   <a href="/docs"><strong>Docs</strong></a> ·
   <a href="https://discord.com/invite/4B5D7hYwub"><strong>Discord</strong></a> ·
@@ -23,7 +23,7 @@
 ## Documentation
 
 1. [Turso Quickstart](https://docs.turso.tech/quickstart) &mdash; Learn how create and connect your first database.
-2. [SDK Quickstart](/docs/README.md#introduction-libsql-client-php) &mdash; Learn how to install and execute queries using the libSQL client.
+2. [SDK Quickstart](/docs/Quickstart.md) &mdash; Learn how to install and execute queries using the libSQL client.
 3. [SDK Reference](/docs/LibSQL.md) &mdash; Dive deeper with the libSQL SDK reference and examples.
 
 ### What is Turso?
