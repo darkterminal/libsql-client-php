@@ -32,7 +32,7 @@ trait MapResults
      */
     protected function fetchObject(string|array|HttpResultSets $data): string
     {
-        return \json_encode($this->_results($data));
+        return \json_encode($this->_results($data), \JSON_PRETTY_PRINT);
     }
 
     /**
