@@ -19,3 +19,6 @@ define('LIBSQL_SEQUENCE', 'sequence');
 define('LIBSQL_DESCRIBE', 'describe');
 define('LIBSQL_STORE_SQL', 'store_sql');
 define('LIBSQL_GET_AUTO_COMMIT', 'get_autocommit');
+
+define('REMOTE', 'Remote');
+define('LOCAL', 'Local');

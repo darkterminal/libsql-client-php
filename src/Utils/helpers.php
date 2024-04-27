@@ -50,6 +50,8 @@ function expandConfig(array $config, bool $preferHttp): ExpandedConfig
     }
 
     // Extract configuration parameters
+    $flags = $config['flags'] ?? LIBSQLPHP_OPEN_READWRITE | LIBSQLPHP_OPEN_CREATE;
+    $encryptionKey = $config['encryptionKey'] ?? "";
     $tls = $config['tls'] ?? false;
     $authToken = $config['authToken'] ?? null;
     $syncUrl = $config['syncUrl'] ?? null;
@@ -58,13 +60,30 @@ function expandConfig(array $config, bool $preferHttp): ExpandedConfig
     // Check if the URL is for in-memory database
     if ($config['url'] === ':memory:') {
         return ExpandedConfig::create(
-            ExpandedScheme::file,
-            false,
-            null,
-            ':memory:',
-            $authToken,
-            $syncUrl,
-            $syncInterval
+            scheme: ExpandedScheme::file,
+            flags: $flags,
+            encryptionKey: $encryptionKey,
+            tls: false,
+            authority: null,
+            path: ':memory:',
+            authToken: $authToken,
+            syncUrl: $syncUrl,
+            syncInterval: $syncInterval
+        );
+    }
+
+    $pattern = '/^file:.*\.db$/';
+    if (preg_match($pattern, $config['url'])) {
+        return ExpandedConfig::create(
+            scheme: ExpandedScheme::file,
+            flags: $flags,
+            encryptionKey: $encryptionKey,
+            tls: false,
+            authority: null,
+            path: $config['url'],
+            authToken: $authToken,
+            syncUrl: $syncUrl,
+            syncInterval: $syncInterval
         );
     }
 
@@ -127,13 +146,15 @@ function expandConfig(array $config, bool $preferHttp): ExpandedConfig
 
     // Create and return the ExpandedConfig object
     return new ExpandedConfig(
-        $scheme,
-        $tls ?? true,
-        $uri->authority,
-        $uri->path,
-        $authToken,
-        $syncUrl,
-        $syncInterval
+        scheme: $scheme,
+        flags: $flags,
+        encryptionKey: $encryptionKey,
+        tls: $tls ?? true,
+        authority: $uri->authority,
+        path: $uri->path,
+        authToken: $authToken,
+        syncUrl: $syncUrl,
+        syncInterval: $syncInterval
     );
 }
 
