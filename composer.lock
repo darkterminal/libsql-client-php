@@ -4,8 +4,65 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b7646986427cf251a52282080efad2fb",
+    "content-hash": "63d24e24263452ac756c18a7df0329dd",
     "packages": [
+        {
+            "name": "darkterminal/libsql-php-ext",
+            "version": "v0.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/darkterminal/libsql-php-ext.git",
+                "reference": "0747e53d72d6f55e75f609beb7230747d3c13466"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/darkterminal/libsql-php-ext/zipball/0747e53d72d6f55e75f609beb7230747d3c13466",
+                "reference": "0747e53d72d6f55e75f609beb7230747d3c13466",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.3"
+            },
+            "bin": [
+                "build"
+            ],
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "php-src/constants.php",
+                    "php-src/helpers.php"
+                ],
+                "psr-4": {
+                    "Darkterminal\\LibSQLPHPExtension\\": "php-src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Imam Ali Mustofa",
+                    "email": "darkterminal@duck.com"
+                }
+            ],
+            "description": "LibSQL Native Extension for PHP",
+            "support": {
+                "issues": "https://github.com/darkterminal/libsql-php-ext/issues",
+                "source": "https://github.com/darkterminal/libsql-php-ext/tree/v0.0.1"
+            },
+            "funding": [
+                {
+                    "url": "https://paypal.me/lazarusalhambra",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/darkterminal",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-04-27T09:09:59+00:00"
+        },
         {
             "name": "darkterminal/turso-http",
             "version": "v1.2.0",

@@ -17,8 +17,23 @@
             "email": "darkterminal@duck.com"
         }
     ],
+    "scripts": {
+        "post-install-cmd": ["./vendor/bin/build"],
+        "post-update-cmd": ["./vendor/bin/build"]
+    },
     "require": {
         "darkterminal/turso-http": "^1.2",
-        "guzzlehttp/guzzle": "^7.0"
-    }
+        "guzzlehttp/guzzle": "^7.0",
+        "darkterminal/libsql-php-ext": "^0.0.1"
+    },
+    "funding": [
+        {
+            "type": "github",
+            "url": "https://github.com/sponsors/darkterminal"
+        },
+        {
+            "type": "other",
+            "url": "https://paypal.me/lazarusalhambra"
+        }
+    ]
 }
