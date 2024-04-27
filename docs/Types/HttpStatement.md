@@ -1,42 +1,55 @@
 # HttpStatement
 
-Represents an HTTP statement with SQL and optional arguments.
-
-## Namespace:
-- Darkterminal\LibSQL\Types
-
-## Uses:
-- None
-
-## Properties:
-- **sql** (string) - The SQL statement.
-- **args** (array|null) - The optional arguments for the SQL statement.
-- **named_args** (bool|null) - Indicates whether the arguments are named or positional.
-
-## Methods:
-- **public** - `__construct`
-Description: Constructs a new HttpStatement instance.
-Parameters:
-  - sql (string) - The SQL statement.
-  - args (array|null) - The optional arguments for the SQL statement.
-  - named_args (bool|null) - Indicates whether the arguments are named or positional.
-
-- **public static** - `create`
-Description: Creates a new HttpStatement instance.
-Parameters:
-  - sql (string) - The SQL statement.
-  - args (array|null) - The optional arguments for the SQL statement.
-  - named_args (bool|null) - Indicates whether the arguments are named or positional.
-
-- **public** - `toArray`
-Description: Convert the HttpStatement instance to an array.
-Returns: The array representation of the HttpStatement instance.
-
-- **public** - `toObject`
-Description: Converts the HttpStatement instance to a JSON string.
-Returns: The JSON representation of the HttpStatement instance.
-
----
-
-## Overview:
 The `HttpStatement` class represents an HTTP statement with SQL and optional arguments. It contains properties such as the SQL statement, optional arguments, and whether the arguments are named or positional. This class provides methods to create an HttpStatement object, convert it to an array or JSON string.
+
+## Instanciated
+
+Constructs a new `HttpStatement` instance. _(Leave this alone!)_
+
+```php
+public function __construct(
+    public string $sql,
+    public ?array $args = [],
+    public ?bool $named_args = false
+)
+```
+## Create "static" Method
+
+Creates a new `HttpStatement` instance.
+
+```php
+public static function create(
+    string $sql,
+    ?array $args = [],
+    ?bool $named_args = false
+): self
+```
+
+**Example Usage**
+
+```php
+$query = HttpStatement::create(sql: 'SELECT name, id FROM users LIMIT 5');
+
+// or
+
+$stmts = [
+    HttpStatement::create(sql: 'INSERT INTO users (name, age) VALUES (?, ?)', args: ["Ramons", 32]),
+    HttpStatement::create(sql: 'INSERT INTO users (name, age) VALUES (?, ?)', args: ["Georgia", 43])
+];
+```
+
+## toArray
+
+Converts the `HttpStatement` instance to an array.
+
+```php
+public function toArray(): array
+```
+
+## toObject
+
+Converts the `HttpStatement` instance to a JSON string.
+
+```php
+public function toObject(): string
+```
