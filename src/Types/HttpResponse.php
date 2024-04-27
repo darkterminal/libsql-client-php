@@ -11,20 +11,6 @@ use Darkterminal\LibSQL\Utils\Exceptions\LibsqlError;
 class HttpResponse
 {
     use MapResults;
-    /**
-     * @var string The baton identifier.
-     */
-    public string|null $baton;
-
-    /**
-     * @var string The base URL for the HTTP response.
-     */
-    public string|null $base_url;
-
-    /**
-     * @var array|HttpResultSets The HTTP result sets.
-     */
-    public array|HttpResultSets $results;
 
     /**
      * Constructs a new HttpResponse instance.
@@ -34,9 +20,9 @@ class HttpResponse
      * @param array|HttpResultSets $results The HTTP result sets.
      */
     public function __construct(
-        string|null $baton,
-        string|null $base_url,
-        array|HttpResultSets $results
+        public string|null $baton,
+        public string|null $base_url,
+        public array|HttpResultSets $results
     ) {
         $this->baton = $baton;
         $this->base_url = $base_url;
@@ -45,6 +31,8 @@ class HttpResponse
 
     /**
      * Creates a new HttpResponse instance.
+     *
+     * This method creates a new instance of the HttpResponse class.
      *
      * @param string|null $baton The baton identifier.
      * @param string|null $base_url The base URL for the HTTP response.
@@ -59,10 +47,14 @@ class HttpResponse
         return new self($baton, $base_url, $results);
     }
 
+
     /**
-     * Converts the HttpResponse instance to an array.
+     * Convert the result set to an associative array.
      *
-     * @return array The array representation of the HttpResponse instance.
+     * This method converts the result set to an associative array representation.
+     * It includes the baton, base URL, and the results converted to an array using the `objectToArray()` function.
+     *
+     * @return array An associative array representation of the result set containing baton, base URL, and results.
      */
     public function toArray(): array
     {
@@ -73,16 +65,31 @@ class HttpResponse
         ];
     }
 
+
     /**
-     * Converts the HttpResponse instance to a JSON string.
+     * Convert the result set to a JSON-encoded string.
      *
-     * @return string The JSON representation of the HttpResponse instance.
+     * This method converts the result set to a JSON-encoded string representation.
+     * It internally uses the `toArray()` method to convert the result set to an associative array
+     * before encoding it as JSON.
+     *
+     * @return string The JSON-encoded string representation of the result set.
      */
     public function toObject(): string
     {
         return \json_encode($this->toArray());
     }
 
+
+    /**
+     * Retrieve the first result set from the query execution.
+     *
+     * This method returns a new instance of the current class containing the first result set
+     * obtained from the executed query. It converts the internal result object to an array and
+     * extracts the first element to create a new instance.
+     *
+     * @return self A new instance of the current class containing the first result set.
+     */
     public function first(): self
     {
         $data = \objectToArray($this->results);
@@ -101,13 +108,15 @@ class HttpResponse
     }
 
     /**
-     * Fetch the results in the specified format.
+     * Fetch the result set from the query execution.
      *
-     * @param int $type (Optional) The format in which to fetch the results. Default is LibSQLResult::FETCH_ASSOC.
+     * This method retrieves the result set from the executed query and returns it in the specified format.
+     * It converts the internal result object to an array and switches based on the provided type parameter
+     * to determine the format of the returned data.
      *
-     * @return array|string The fetched results.
-     *
-     * @throws LibsqlError If an undefined fetch option is provided.
+     * @param int $type The type of fetch operation. Default is LibSQLResult::FETCH_ASSOC.
+     * @return array|string The result set in the specified format.
+     * @throws LibsqlError When an undefined fetch option is provided.
      */
     public function fetch(int $type = LibSQLResult::FETCH_ASSOC): array|string
     {
@@ -119,11 +128,9 @@ class HttpResponse
             case LibSQLResult::FETCH_OBJ:
                 return $this->fetchObject($results);
                 break;
-
             default:
                 throw new LibsqlError("Error Undefined fetch options", "UNDEFINED_FETCH_OPTIONS");
                 break;
         }
     }
-
 }
