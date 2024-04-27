@@ -13,14 +13,18 @@ class ExpandedConfig
 {
     public function __construct(
         public string $scheme,
-        public bool $tls = false,
+        public ?int $flags,
+        public ?string $encryptionKey,
+        public ?bool $tls = false,
         public ?Authority $authority = null,
-        public string $path,
+        public ?string $path,
         public ?string $authToken = null,
         public ?string $syncUrl = null,
         public ?int $syncInterval = null
     ) {
         $this->scheme = $scheme;
+        $this->flags = $flags;
+        $this->encryptionKey = $encryptionKey;
         $this->tls = $tls;
         $this->authority = $authority;
         $this->path = $path;
@@ -31,15 +35,19 @@ class ExpandedConfig
 
     public static function create(
         string $scheme,
-        bool $tls = false,
+        ?int $flags,
+        ?string $encryptionKey = "",
+        ?bool $tls = false,
         ?Authority $authority,
-        string $path,
+        ?string $path,
         ?string $authToken = null,
         ?string $syncUrl = null,
         ?int $syncInterval = null
     ): self {
         return new self(
             $scheme,
+            $flags,
+            $encryptionKey,
             $tls,
             $authority,
             $path,
@@ -58,6 +66,8 @@ class ExpandedConfig
     {
         return [
             'scheme' => $this->scheme,
+            'flags' => $this->flags,
+            'encryptionKey' => $this->encryptionKey,
             'tls' => $this->tls,
             'authority' => $this->authority ? $this->authority->toArray() : null,
             'path' => $this->path,

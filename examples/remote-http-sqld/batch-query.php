@@ -3,10 +3,11 @@
 use Darkterminal\LibSQL\LibSQL;
 use Darkterminal\LibSQL\Types\HttpStatement;
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 $config = [
     'url' => 'libsql://127.0.0.1:8001',
+    'authToken' => getenv('LIBSQL_PHP_FA_TOKEN'),
     'tls' => false
 ];
 
@@ -19,8 +20,8 @@ if ($db->connect()) {
 
 // Batch Query Example
 $stmts = [
-    HttpStatement::create('INSERT INTO users (name, age, weight) VALUES (?, ?, ?)', ["Ramons", 32, 45.5]),
-    HttpStatement::create('INSERT INTO users (name, age, weight) VALUES (?, ?, ?)', ["Georgia", 43, 64.45])
+    HttpStatement::create(sql: 'INSERT INTO users (name, age) VALUES (?, ?)', args: ["Ramons", 32]),
+    HttpStatement::create(sql: 'INSERT INTO users (name, age) VALUES (?, ?)', args: ["Georgia", 43])
 ];
-$results = $db->batch($stmts);
+$results = $db->batch(queries: $stmts);
 print_r($results);

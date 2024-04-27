@@ -4,6 +4,7 @@ namespace Darkterminal\LibSQL\Providers;
 
 use Darkterminal\LibSQL\Types\HttpResponse;
 use Darkterminal\LibSQL\Types\HttpStatement;
+use Darkterminal\LibSQL\Types\HttpTransaction;
 use Darkterminal\LibSQL\Types\TransactionMode;
 use Darkterminal\LibSQL\Utils\Exceptions\LibsqlError;
 use GuzzleHttp\Client;
@@ -19,14 +20,55 @@ use Psr\Http\Message\ResponseInterface;
  *
  * @package Darkterminal\LibSQL
  */
-trait HttpClient
+class HttpClient
 {
+    /**
+     * The HTTP client instance used for making requests.
+     *
+     * @var Client
+     */
     protected Client $http;
+
+    /**
+     * The timeout duration for HTTP requests.
+     *
+     * @var int|float
+     */
     protected int|float $timeout;
+
+    /**
+     * The base URL for HTTP requests.
+     *
+     * @var string
+     */
     protected string $url;
+
+    /**
+     * The authentication token used for HTTP requests, if applicable.
+     *
+     * @var string|null
+     */
     protected string|null $authToken;
+
+    /**
+     * The headers to be included in HTTP requests.
+     *
+     * @var array
+     */
     protected array $headers;
+
+    /**
+     * The baton for tracking requests, if applicable.
+     *
+     * @var string
+     */
     protected string $baton = '';
+
+    /**
+     * The collectors used for collecting data from requests.
+     *
+     * @var array
+     */
     protected array $collectors = [];
 
     /**
@@ -39,7 +81,7 @@ trait HttpClient
      *
      * @throws LibsqlError If attempting to use a remote (turso) database without providing a token.
      */
-    protected function setup(string $url, string|null $authToken = null, int|float $timeout = 2.0)
+    public function setup(string $url, string|null $authToken = null, int|float $timeout = 2.0)
     {
         // Check if attempting to use a remote (turso) database without providing a token
         if (\strpos($url, \TURSO) !== false && \is_null($authToken)) {
@@ -53,13 +95,16 @@ trait HttpClient
         $this->initializeHttp();
     }
 
+    /**
+     * Initializes the HTTP client with the specified headers and options.
+     */
     private function initializeHttp(): void
     {
         $this->headers = [
             'Content-Type' => 'Application/json'
         ];
         if (!empty($this->authToken)) {
-            $this->headers[] = ['Authorization' => 'Bearer ' . $this->authToken];
+            $this->headers['Authorization'] = 'Bearer ' . $this->authToken;
         }
 
         // Initialize Guzzle HTTP client
@@ -80,12 +125,12 @@ trait HttpClient
     {
         try {
             // Send a health check request to the server
-            $request = new Request('GET', \HEALTH_ENDPOINT);
+            $request = new Request('GET', \HEALTH_ENDPOINT, $this->headers);
             $response = $this->http->send($request);
             return $response->getStatusCode() === 200;
         } catch (\Throwable $e) {
             // If connection fails, throw a LibsqlError
-            throw new LibsqlError("Connection failed!", "CONNECTION_ERROR");
+            throw new LibsqlError("Connection failed! " . $e->getMessage(), "CONNECTION_ERROR");
         }
     }
 
@@ -189,17 +234,18 @@ trait HttpClient
      *
      * @param string $sql The SQL statements to execute.
      *
-     * @return void
+     * @return string
      *
      * @throws LibsqlError If execution fails.
      */
-    public function executeMultiple(string $sql): void
+    public function executeMultiple(string $sql): string
     {
         try {
-            $payload = $this->_createRequest(\LIBSQL_SEQUENCE, $sql);
-            $this->http->post(\PIPE_LINE_ENDPOINT, [
-                'json' => $payload
+            $payload = $this->_createSequenceRequest(\str_replace(["\r", "\n", "\r\n"], '', $sql));
+            $response = $this->http->post(\PIPE_LINE_ENDPOINT, [
+                'json' => $this->_makeRequest($payload)
             ]);
+            return $response->getBody();
         } catch (\Throwable $e) {
             $this->_close();
             // If execution fails, throw a LibsqlError
@@ -216,66 +262,10 @@ trait HttpClient
      *
      * @throws LibsqlError If there is an error starting the transaction.
      */
-    public function startTransaction(string $mode = 'write'): self
+    public function transaction(string $mode = 'write'): HttpTransaction
     {
         TransactionMode::checker($mode);
-        $request = $this->_createRequest(\LIBSQL_EXECUTE, transactionModeToBegin($mode));
-        $response = $this->runQuery($this->_makeRequest($request, false), true);
-        $data = map_results($response->getBody());
-        $this->baton = $data['baton'];
-        return $this;
-    }
-
-    /**
-     * Add a transaction to the transaction batch.
-     *
-     * @param HttpStatement $query The HTTP statement to add to the transaction.
-     *
-     * @return self The current instance of HttpClient.
-     */
-    public function addTransaction(HttpStatement $query): self
-    {
-        \array_push($this->collectors, $this->_createRequest(\LIBSQL_EXECUTE, $query->sql, $query->args, $query->named_args));
-        return $this;
-    }
-
-    /**
-     * End the current transaction batch and commit the transactions.
-     *
-     * @return HttpResponse The HTTP response containing the results of the transaction batch.
-     */
-    public function endTransaction(): HttpResponse
-    {
-        \array_push($this->collectors, $this->_rawCommit());
-        $response = $this->runQuery($this->_makeRequest($this->collectors, true, $this->baton), true);
-        $data = map_results($response->getBody());
-        return HttpResponse::create($data['baton'], $data['base_url'], $data['results']);
-    }
-
-    /**
-     * Rollback the current transaction.
-     */
-    public function rollback(): void
-    {
-        $this->runQuery($this->_makeRequest($this->_createRequest(\LIBSQL_EXECUTE, 'ROLLBACK'), true, $this->baton));
-    }
-
-    private function _rawRollback(): array
-    {
-        return $this->_createRequest(\LIBSQL_EXECUTE, 'ROLLBACK');
-    }
-
-    /**
-     * Commit the current transaction.
-     */
-    public function commit(): void
-    {
-        $this->runQuery($this->_makeRequest($this->_createRequest(\LIBSQL_EXECUTE, 'COMMIT'), true, $this->baton));
-    }
-
-    private function _rawCommit(): array
-    {
-        return $this->_createRequest(\LIBSQL_EXECUTE, 'COMMIT');
+        return new HttpTransaction($mode);
     }
 
     /**
@@ -323,7 +313,7 @@ trait HttpClient
      *
      * @return array The payload for the request.
      */
-    private function _makeRequest(array $data, bool $close = true, string $baton = ''): array
+    protected function _makeRequest(array $data, bool $close = true, string $baton = ''): array
     {
         // Initialize the payload with the "requests" key
         $payload = [
@@ -348,7 +338,7 @@ trait HttpClient
      *
      * @return array The request array for closing the connection.
      */
-    private function _close(): array
+    protected function _close(): array
     {
         return ["type" => \LIBSQL_CLOSE];
     }
@@ -363,7 +353,7 @@ trait HttpClient
      *
      * @return array The request array for execution.
      */
-    private function _createRequest(
+    protected function _createRequest(
         string $type = \LIBSQL_EXECUTE,
         string $sql,
         ?array $args = [],
@@ -389,6 +379,22 @@ trait HttpClient
         return $executeRequest;
     }
 
+    protected function _createSequenceRequest(
+        string $sql,
+        int|null $sql_id = null
+    ): array {
+        // Initialize the execute request array
+        $executeRequest = [
+            "type" => \LIBSQL_SEQUENCE,
+            "sql" => $sql
+        ];
+
+        if (!empty($sql_id)) {
+            $executeRequest['sql_id'] = $sql_id;
+        }
+
+        return $executeRequest;
+    }
 
     /**
      * Generate arguments array for the HTTP request payload.
@@ -398,7 +404,7 @@ trait HttpClient
      * @return array The generated arguments array.
      * @throws LibsqlError If an invalid argument type is encountered.
      */
-    private function _argumentsGenerator($args): array
+    protected function _argumentsGenerator($args): array
     {
         $argsArray = [];
 
@@ -435,7 +441,7 @@ trait HttpClient
      * @return array The generated named arguments array.
      * @throws LibsqlError If an invalid argument type is encountered.
      */
-    private function _namedArgumentsGenerator(array $args): array
+    protected function _namedArgumentsGenerator(array $args): array
     {
         $argsArray = [];
 
@@ -475,7 +481,7 @@ trait HttpClient
      * @return string The type of the value.
      * @throws LibsqlError If the type of the value cannot be determined or is invalid.
      */
-    private function _typeParser(mixed $value): string
+    protected function _typeParser(mixed $value): string
     {
         // Check the type of the value using the provided function
         $type = checkColumnType($value);

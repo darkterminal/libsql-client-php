@@ -3,10 +3,11 @@
 use Darkterminal\LibSQL\LibSQL;
 use Darkterminal\LibSQL\Types\HttpStatement;
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 $config = [
     'url' => 'libsql://127.0.0.1:8001',
+    'authToken' => getenv('LIBSQL_PHP_FA_TOKEN'),
     'tls' => false
 ];
 
@@ -18,7 +19,7 @@ if ($db->connect()) {
 }
 
 // Start a new transaction
-$transaction = $db->startTransaction();
+$transaction = $db->transaction();
 
 // Add the first SQL statement to the transaction
 if (true) {

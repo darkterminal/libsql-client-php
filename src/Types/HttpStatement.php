@@ -8,30 +8,15 @@ namespace Darkterminal\LibSQL\Types;
 class HttpStatement
 {
     /**
-     * @var string The SQL statement.
-     */
-    public string $sql;
-
-    /**
-     * @var array|null The optional arguments for the SQL statement.
-     */
-    public ?array $args;
-
-    /**
-     * @var bool The optional arguments for the SQL statement.
-     */
-    public ?bool $named_args;
-
-    /**
      * Constructs a new HttpStatement instance.
      *
      * @param string $sql The SQL statement.
      * @param array|null $args The optional arguments for the SQL statement.
      */
     public function __construct(
-        string $sql,
-        ?array $args = [],
-        ?bool $named_args = false
+        public string $sql,
+        public ?array $args = [],
+        public ?bool $named_args = false
     ) {
         $this->sql = $sql;
         $this->args = $args;
@@ -40,6 +25,19 @@ class HttpStatement
 
     /**
      * Creates a new HttpStatement instance.
+     * 
+     * **Example Usage**
+     * 
+     * ```
+     * $query = HttpStatement::create(sql: 'SELECT name, id FROM users LIMIT 5');
+     * 
+     * // or
+     * 
+     * $stmts = [
+     *     HttpStatement::create(sql: 'INSERT INTO users (name, age) VALUES (?, ?)', args: ["Ramons", 32]),
+     *     HttpStatement::create(sql: 'INSERT INTO users (name, age) VALUES (?, ?)', args: ["Georgia", 43])
+     * ];
+     * ```
      *
      * @param string $sql The SQL statement.
      * @param array|null $args The optional arguments for the SQL statement.
