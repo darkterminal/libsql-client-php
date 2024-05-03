@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "63d24e24263452ac756c18a7df0329dd",
+    "content-hash": "a5cab5b0a3322cb4d3ef17c4d608e4ae",
     "packages": [
         {
             "name": "darkterminal/libsql-php-ext",
-            "version": "v0.0.1",
+            "version": "v1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/darkterminal/libsql-php-ext.git",
-                "reference": "0747e53d72d6f55e75f609beb7230747d3c13466"
+                "reference": "a93f791b18306ebc4818efd27a45648e9ba2cfae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/darkterminal/libsql-php-ext/zipball/0747e53d72d6f55e75f609beb7230747d3c13466",
-                "reference": "0747e53d72d6f55e75f609beb7230747d3c13466",
+                "url": "https://api.github.com/repos/darkterminal/libsql-php-ext/zipball/a93f791b18306ebc4818efd27a45648e9ba2cfae",
+                "reference": "a93f791b18306ebc4818efd27a45648e9ba2cfae",
                 "shasum": ""
             },
             "require": {
@@ -49,7 +49,7 @@
             "description": "LibSQL Native Extension for PHP",
             "support": {
                 "issues": "https://github.com/darkterminal/libsql-php-ext/issues",
-                "source": "https://github.com/darkterminal/libsql-php-ext/tree/v0.0.1"
+                "source": "https://github.com/darkterminal/libsql-php-ext/tree/v1.0.0"
             },
             "funding": [
                 {
@@ -61,57 +61,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-04-27T09:09:59+00:00"
-        },
-        {
-            "name": "darkterminal/turso-http",
-            "version": "v1.2.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/darkterminal/turso-http.git",
-                "reference": "77354e5e0bedfd51295277ccb88be9023116239b"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/darkterminal/turso-http/zipball/77354e5e0bedfd51295277ccb88be9023116239b",
-                "reference": "77354e5e0bedfd51295277ccb88be9023116239b",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=7.4"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Darkterminal\\TursoHttp\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Imam Ali Mustofa",
-                    "email": "darkterminal@duck.com"
-                }
-            ],
-            "description": "The TursoHTTP library is a PHP wrapper for Turso HTTP Database API",
-            "support": {
-                "issues": "https://github.com/darkterminal/turso-http/issues",
-                "source": "https://github.com/darkterminal/turso-http/tree/v1.2.0"
-            },
-            "funding": [
-                {
-                    "url": "https://paypal.me/lazarusalhambra",
-                    "type": "custom"
-                },
-                {
-                    "url": "https://github.com/darkterminal",
-                    "type": "github"
-                }
-            ],
-            "time": "2024-01-28T07:32:00+00:00"
+            "time": "2024-05-03T10:07:03+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -644,16 +594,16 @@
         },
         {
             "name": "symfony/deprecation-contracts",
-            "version": "v3.4.0",
+            "version": "v3.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/deprecation-contracts.git",
-                "reference": "7c3aff79d10325257a001fcf92d991f24fc967cf"
+                "reference": "0e0d29ce1f20deffb4ab1b016a7257c4f1e789a1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/deprecation-contracts/zipball/7c3aff79d10325257a001fcf92d991f24fc967cf",
-                "reference": "7c3aff79d10325257a001fcf92d991f24fc967cf",
+                "url": "https://api.github.com/repos/symfony/deprecation-contracts/zipball/0e0d29ce1f20deffb4ab1b016a7257c4f1e789a1",
+                "reference": "0e0d29ce1f20deffb4ab1b016a7257c4f1e789a1",
                 "shasum": ""
             },
             "require": {
@@ -662,7 +612,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "3.4-dev"
+                    "dev-main": "3.5-dev"
                 },
                 "thanks": {
                     "name": "symfony/contracts",
@@ -691,7 +641,7 @@
             "description": "A generic function and convention to trigger deprecation notices",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/deprecation-contracts/tree/v3.4.0"
+                "source": "https://github.com/symfony/deprecation-contracts/tree/v3.5.0"
             },
             "funding": [
                 {
@@ -707,7 +657,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-05-23T14:45:45+00:00"
+            "time": "2024-04-18T09:32:20+00:00"
         }
     ],
     "packages-dev": [],

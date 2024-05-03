@@ -22,9 +22,8 @@
         "post-update-cmd": ["./vendor/bin/build"]
     },
     "require": {
-        "darkterminal/turso-http": "^1.2",
         "guzzlehttp/guzzle": "^7.0",
-        "darkterminal/libsql-php-ext": "^0.0.1"
+        "darkterminal/libsql-php-ext": "^1.0"
     },
     "funding": [
         {
