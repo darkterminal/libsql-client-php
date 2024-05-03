@@ -4,6 +4,7 @@ namespace Darkterminal\LibSQL;
 
 use Darkterminal\LibSQL\Providers\HttpClient;
 use Darkterminal\LibSQL\Providers\LocalClient;
+use Darkterminal\LibSQL\Providers\RemoteReplicaClient;
 use Darkterminal\LibSQL\Types\ExpandedScheme;
 use Darkterminal\LibSQL\Types\HttpResponse;
 use Darkterminal\LibSQL\Types\HttpStatement;
@@ -30,6 +31,11 @@ class LibSQL
      * @var LocalClient $localProvider The local client provider.
      */
     protected LocalClient $localProvider;
+
+    /**
+     * @var RemoteReplicaClient $remoteReplicaProvicer The Remote Replica client provider
+     */
+    protected RemoteReplicaClient $remoteReplicaProvider;
 
     /**
      * @var string $mode The current connection mode (either "Remote" or "Local").
@@ -71,7 +77,16 @@ class LibSQL
     {
         $configBuilder = expandConfig($config, true);
 
-        if ($configBuilder->scheme !== ExpandedScheme::file) {
+        if ($configBuilder->scheme === ExpandedScheme::file && !empty($configBuilder->authToken) && !empty($configBuilder->syncUrl)) {
+            $this->remoteReplicaProvider = new RemoteReplicaClient(
+                $configBuilder->path,
+                $configBuilder->authToken,
+                $configBuilder->syncUrl,
+                $configBuilder->syncInterval,
+                $configBuilder->read_your_writes
+            );
+            $this->mode = 'RemoteReplica';
+        } else if (in_array($configBuilder->scheme, [ExpandedScheme::http, ExpandedScheme::https]) && !empty($configBuilder->authToken)) {
             if ($configBuilder->scheme !== ExpandedScheme::https && $configBuilder->scheme !== ExpandedScheme::http) {
                 throw new LibsqlError(
                     'The HTTP client supports only "libsql:", "https:" and "http:" URLs, got ' . $configBuilder->scheme,
@@ -89,13 +104,23 @@ class LibSQL
             $this->httpProvider = new HttpClient();
             $this->httpProvider->setup($url, $configBuilder->authToken);
             $this->mode = 'Remote';
-        } else if ($configBuilder->scheme === ExpandedScheme::file) {
+        } else if ($configBuilder->scheme === ExpandedScheme::file && !empty($configBuilder->flags) && !empty($configBuilder->path)) {
             $this->localProvider = new LocalClient();
             $this->localProvider->setup($configBuilder->path, $configBuilder->flags, $configBuilder->encryptionKey);
             $this->mode = "Local";
         } else {
             throw new LibsqlError('Invalid Connection! Only support Remote and Local connection', 'ERR_INVALID_CONNECTION');
         }
+    }
+
+    /**
+     * Checking connection mode
+     *
+     * @return string
+     */
+    public function connectionMode(): string
+    {
+        return $this->mode;
     }
 
     /**
@@ -113,6 +138,9 @@ class LibSQL
                 break;
             case LOCAL:
                 return $this->localProvider->connect();
+                break;
+            case REMOTE_REPLICA:
+                return $this->remoteReplicaProvider->connect();
                 break;
             default:
                 throw new LibsqlError("Connection mode is not found", "ERR_MODE_NOT_FOUND");
@@ -135,6 +163,9 @@ class LibSQL
                 break;
             case LOCAL:
                 return $this->localProvider->version();
+                break;
+            case REMOTE_REPLICA:
+                return $this->remoteReplicaProvider->version();
                 break;
             default:
                 throw new LibsqlError("Connection mode is not found", "ERR_MODE_NOT_FOUND");
@@ -197,6 +228,9 @@ class LibSQL
             case LOCAL:
                 return $this->localProvider->execute($query, $params);
                 break;
+            case REMOTE_REPLICA:
+                return $this->remoteReplicaProvider->execute($query, $params);
+                break;
             default:
                 throw new LibsqlError("Connection mode is not found", "ERR_MODE_NOT_FOUND");
                 break;
@@ -235,7 +269,7 @@ class LibSQL
      */
     public function batch(array $queries, string $mode = "deferred"): HttpResponse
     {
-        if ($this->mode === LOCAL) {
+        if (in_array($this->mode, [LOCAL, REMOTE_REPLICA])) {
             throw new LibsqlError("This function only for Remote (HTTP) provider", "INVALID_FUNCTION_CALL");
         }
 
@@ -267,10 +301,20 @@ class LibSQL
     public function execute_batch(string $query): void
     {
         if ($this->mode === REMOTE) {
-            throw new LibsqlError("This function only for Local (FILE) provider", "INVALID_FUNCTION_CALL");
+            
         }
 
-        $this->localProvider->batch($query);
+        switch ($this->mode) {
+            case LOCAL:
+                $this->localProvider->batch($query);
+                break;
+            case REMOTE_REPLICA:
+                $this->remoteReplicaProvider->batch($query);
+                break;
+            default:
+                throw new LibsqlError("This function only for Local (FILE) provider", "INVALID_FUNCTION_CALL");
+                break;
+        }
     }
 
     /**
@@ -300,7 +344,7 @@ class LibSQL
      */
     public function executeMultiple(string $query): string
     {
-        if ($this->mode === LOCAL) {
+        if (in_array($this->mode, [LOCAL, REMOTE_REPLICA])) {
             throw new LibsqlError("This function only for Remote (HTTP) provider", "INVALID_FUNCTION_CALL");
         }
 
@@ -382,6 +426,9 @@ class LibSQL
             case LOCAL:
                 return $this->localProvider->transaction($mode);
                 break;
+            case REMOTE_REPLICA:
+                return $this->remoteReplicaProvider->transaction($mode);
+                break;
             default:
                 throw new LibsqlError("Connection mode is not found", "ERR_MODE_NOT_FOUND");
                 break;
@@ -395,13 +442,15 @@ class LibSQL
      *
      * @throws LibsqlError Thrown if sync is called in Remote (HTTP) or Local (FILE) mode.
      *
-     * @return void
+     * @return int
      */
-    public function sync(): void
+    public function sync(): int
     {
         if ($this->mode === LOCAL || $this->mode === REMOTE) {
             throw new LibsqlError("sync not supported in Remote (HTTP) or Local (FILE) mode", "SYNC_NOT_SUPPORTED");
         }
+
+        return $this->remoteReplicaProvider->sync();
     }
 
     /**
@@ -419,6 +468,9 @@ class LibSQL
                 break;
             case LOCAL:
                 $this->localProvider->close();
+                break;
+            case REMOTE_REPLICA:
+                $this->remoteReplicaProvider->close();
                 break;
             default:
                 throw new LibsqlError("Connection mode is not recognized", "ERR_MODE_NOT_FOUND");
