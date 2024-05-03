@@ -21,4 +21,5 @@ define('LIBSQL_STORE_SQL', 'store_sql');
 define('LIBSQL_GET_AUTO_COMMIT', 'get_autocommit');
 
 define('REMOTE', 'Remote');
+define('REMOTE_REPLICA', 'RemoteReplica');
 define('LOCAL', 'Local');
