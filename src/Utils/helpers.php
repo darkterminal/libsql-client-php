@@ -56,6 +56,7 @@ function expandConfig(array $config, bool $preferHttp): ExpandedConfig
     $authToken = $config['authToken'] ?? null;
     $syncUrl = $config['syncUrl'] ?? null;
     $syncInterval = $config['syncInterval'] ?? null;
+    $read_your_writes = $config['read_your_writes'] ?? true;
 
     // Check if the URL is for in-memory database
     if ($config['url'] === ':memory:') {
@@ -68,7 +69,8 @@ function expandConfig(array $config, bool $preferHttp): ExpandedConfig
             path: ':memory:',
             authToken: $authToken,
             syncUrl: $syncUrl,
-            syncInterval: $syncInterval
+            syncInterval: $syncInterval,
+            read_your_writes: $read_your_writes
         );
     }
 
@@ -83,7 +85,8 @@ function expandConfig(array $config, bool $preferHttp): ExpandedConfig
             path: $config['url'],
             authToken: $authToken,
             syncUrl: $syncUrl,
-            syncInterval: $syncInterval
+            syncInterval: $syncInterval,
+            read_your_writes: $read_your_writes
         );
     }
 
@@ -154,7 +157,8 @@ function expandConfig(array $config, bool $preferHttp): ExpandedConfig
         path: $uri->path,
         authToken: $authToken,
         syncUrl: $syncUrl,
-        syncInterval: $syncInterval
+        syncInterval: $syncInterval,
+        read_your_writes: $read_your_writes
     );
 }
 
