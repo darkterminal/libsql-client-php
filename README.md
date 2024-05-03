@@ -1,7 +1,7 @@
 <p align="center">
   <a href="/docs/README.md">
     <img alt="Turso + TypeScript" src="https://i.imgur.com/N7hT38A.png" width="1000">
-    <h3 align="center">Turso + PHP (Work In Progress)</h3>
+    <h3 align="center">Turso + PHP</h3>
   </a>
 </p>
 
