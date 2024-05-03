@@ -16,4 +16,5 @@ class ExpandedScheme
     public const https = 'https';
     public const http = 'http';
     public const file = 'file';
+    public const libsql = 'libsql';
 }
