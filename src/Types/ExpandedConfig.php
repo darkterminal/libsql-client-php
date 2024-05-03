@@ -20,7 +20,8 @@ class ExpandedConfig
         public ?string $path,
         public ?string $authToken = null,
         public ?string $syncUrl = null,
-        public ?int $syncInterval = null
+        public ?int $syncInterval = null,
+        public ?bool $read_your_writes = true
     ) {
         $this->scheme = $scheme;
         $this->flags = $flags;
@@ -31,6 +32,7 @@ class ExpandedConfig
         $this->authToken = $authToken;
         $this->syncUrl = $syncUrl;
         $this->syncInterval = $syncInterval;
+        $this->read_your_writes = $read_your_writes;
     }
 
     public static function create(
@@ -42,7 +44,8 @@ class ExpandedConfig
         ?string $path,
         ?string $authToken = null,
         ?string $syncUrl = null,
-        ?int $syncInterval = null
+        ?int $syncInterval = null,
+        ?bool $read_your_writes = true
     ): self {
         return new self(
             $scheme,
@@ -53,7 +56,8 @@ class ExpandedConfig
             $path,
             $authToken,
             $syncUrl,
-            $syncInterval
+            $syncInterval,
+            $read_your_writes
         );
     }
 
@@ -74,6 +78,7 @@ class ExpandedConfig
             'authToken' => $this->authToken,
             'syncUrl' => $this->syncUrl,
             'syncInterval' => $this->syncInterval,
+            'read_your_writes' => $this->read_your_writes,
         ];
     }
 
