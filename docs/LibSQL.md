@@ -46,6 +46,20 @@ $config = [
 $db = new LibSQL($config);
 ```
 
+**Example Remote Replica Connection**
+
+```php
+$config = [
+    "url" => "file:database.db",
+    "authToken" => getenv('TURSO_DATABASE_TOKEN'),
+    "syncUrl" => getenv('TURSO_DATABASE_URL'),
+    "syncInterval" => 5,
+    "read_your_writes" => true
+];
+
+$db = new LibSQL($config);
+```
+
 ## Connection
 
 This method `connect()` establishes a connection to the database based on the mode set during the initialization of the LibSQL instance. It throws a `LibsqlError` if the connection mode is not recognized.
