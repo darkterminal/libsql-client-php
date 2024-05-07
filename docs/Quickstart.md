@@ -9,7 +9,7 @@ Before you start using this SDK, read this requirements.
 - jq
 - Rust Installed
 - PHP Installed
-- FFI Extension is Enabled (_Why? I read the C heder definition from wrapper_)
+- FFI Extension is Enabled (_Why? I read the C header definition from wrapper_)
 
 Or, you can't used this SDK.
 
