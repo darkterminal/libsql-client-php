@@ -23,6 +23,40 @@ use Darkterminal\LibSQLPHPExtension\Responses\Transaction;
  */
 class LibSQL
 {
+    public const URI_RE = '/^(?<scheme>[A-Za-z][A-Za-z.+-]*):(\/\/(?<authority>[^\/?#]*))?(?<path>[^?#]*)(\?(?<query>[^#]*))?(#(?<fragment>.*))?$/';
+
+    public const AUTHORITY_RE = '/^((?<username>[^:]*)(:(?<password>.*))?@)?((?<host>[^:\[\]]*)|(\[(?<host_br>[^\[\]]*)\]))(:(?<port>[0-9]*))?$/';
+    
+    public const SUPPORTED_URL_LINK = "https://github.com/libsql/libsql-client-php#supported-urls";
+    
+    public const TURSO = 'turso.io';
+    
+    public const PIPE_LINE_ENDPOINT = '/v3/pipeline';
+    
+    public const VERSION_ENDPOINT = '/version';
+    
+    public const HEALTH_ENDPOINT = '/health';
+    
+    public const LIBSQL_CLOSE = 'close';
+    
+    public const LIBSQL_EXECUTE = 'execute';
+    
+    public const LIBSQL_BATCH = 'bath';
+    
+    public const LIBSQL_SEQUENCE = 'sequence';
+    
+    public const LIBSQL_DESCRIBE = 'describe';
+    
+    public const LIBSQL_STORE_SQL = 'store_sql';
+    
+    public const LIBSQL_GET_AUTO_COMMIT = 'get_autocommit';
+    
+    public const REMOTE = 'Remote';
+    
+    public const REMOTE_REPLICA = 'RemoteReplica';
+    
+    public const LOCAL = 'Local';
+
     /**
      * @var HttpClient $httpProvider The HTTP client provider.
      */
@@ -134,13 +168,13 @@ class LibSQL
     public function connect(): bool
     {
         switch ($this->mode) {
-            case REMOTE:
+            case LibSQL::REMOTE:
                 return $this->httpProvider->connect();
                 break;
-            case LOCAL:
+            case LibSQL::LOCAL:
                 return $this->localProvider->connect();
                 break;
-            case REMOTE_REPLICA:
+            case LibSQL::REMOTE_REPLICA:
                 return $this->remoteReplicaProvider->connect();
                 break;
             default:
@@ -159,13 +193,13 @@ class LibSQL
     public function version(): string
     {
         switch ($this->mode) {
-            case REMOTE:
+            case LibSQL::REMOTE:
                 return $this->httpProvider->version();
                 break;
-            case LOCAL:
+            case LibSQL::LOCAL:
                 return $this->localProvider->version();
                 break;
-            case REMOTE_REPLICA:
+            case LibSQL::REMOTE_REPLICA:
                 return $this->remoteReplicaProvider->version();
                 break;
             default:
@@ -223,13 +257,13 @@ class LibSQL
     public function execute(string|HttpStatement $query, string $baton = '', ?array $params = []): LibSQLPHPClientResult|HttpResponse
     {
         switch ($this->mode) {
-            case REMOTE:
+            case LibSQL::REMOTE:
                 return $this->httpProvider->execute($query, $baton);
                 break;
-            case LOCAL:
+            case LibSQL::LOCAL:
                 return $this->localProvider->execute($query, $params);
                 break;
-            case REMOTE_REPLICA:
+            case LibSQL::REMOTE_REPLICA:
                 return $this->remoteReplicaProvider->execute($query, $params);
                 break;
             default:
@@ -270,7 +304,7 @@ class LibSQL
      */
     public function batch(array $queries, string $mode = "deferred"): HttpResponse
     {
-        if (in_array($this->mode, [LOCAL, REMOTE_REPLICA])) {
+        if (in_array($this->mode, [LibSQL::LOCAL, LibSQL::REMOTE_REPLICA])) {
             throw new LibsqlError("This function only for Remote (HTTP) provider", "INVALID_FUNCTION_CALL");
         }
 
@@ -301,15 +335,14 @@ class LibSQL
      */
     public function execute_batch(string $query): void
     {
-        if ($this->mode === REMOTE) {
-            
+        if ($this->mode === LibSQL::REMOTE) {
         }
 
         switch ($this->mode) {
-            case LOCAL:
+            case LibSQL::LOCAL:
                 $this->localProvider->batch($query);
                 break;
-            case REMOTE_REPLICA:
+            case LibSQL::REMOTE_REPLICA:
                 $this->remoteReplicaProvider->batch($query);
                 break;
             default:
@@ -345,7 +378,7 @@ class LibSQL
      */
     public function executeMultiple(string $query): string
     {
-        if (in_array($this->mode, [LOCAL, REMOTE_REPLICA])) {
+        if (in_array($this->mode, [LibSQL::LOCAL, LibSQL::REMOTE_REPLICA])) {
             throw new LibsqlError("This function only for Remote (HTTP) provider", "INVALID_FUNCTION_CALL");
         }
 
@@ -421,13 +454,13 @@ class LibSQL
     public function transaction(string $mode = 'write'): HttpTransaction|Transaction
     {
         switch ($this->mode) {
-            case REMOTE:
+            case LibSQL::REMOTE:
                 return $this->httpProvider->transaction($mode);
                 break;
-            case LOCAL:
+            case LibSQL::LOCAL:
                 return $this->localProvider->transaction($mode);
                 break;
-            case REMOTE_REPLICA:
+            case LibSQL::REMOTE_REPLICA:
                 return $this->remoteReplicaProvider->transaction($mode);
                 break;
             default:
@@ -447,7 +480,7 @@ class LibSQL
      */
     public function sync(): int
     {
-        if ($this->mode === LOCAL || $this->mode === REMOTE) {
+        if ($this->mode === LibSQL::LOCAL || $this->mode === LibSQL::REMOTE) {
             throw new LibsqlError("sync not supported in Remote (HTTP) or Local (FILE) mode", "SYNC_NOT_SUPPORTED");
         }
 
@@ -464,13 +497,13 @@ class LibSQL
     public function close(): void
     {
         switch ($this->mode) {
-            case REMOTE:
+            case LibSQL::REMOTE:
                 $this->httpProvider->close();
                 break;
-            case LOCAL:
+            case LibSQL::LOCAL:
                 $this->localProvider->close();
                 break;
-            case REMOTE_REPLICA:
+            case LibSQL::REMOTE_REPLICA:
                 $this->remoteReplicaProvider->close();
                 break;
             default:
