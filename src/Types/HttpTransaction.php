@@ -3,6 +3,7 @@
 namespace Darkterminal\LibSQL\Types;
 
 use Darkterminal\LibSQL\Providers\HttpClient;
+use Darkterminal\LibSQL\Utils\Mods;
 
 class HttpTransaction extends HttpClient
 {
@@ -10,7 +11,7 @@ class HttpTransaction extends HttpClient
 
     public function __construct(string $mode)
     {
-        $request = $this->_createRequest(\LIBSQL_EXECUTE, transactionModeToBegin($mode));
+        $request = $this->_createRequest(\LIBSQL_EXECUTE, Mods::transactionModeToBegin($mode));
         $response = $this->runQuery($this->_makeRequest($request, false), true);
         $data = map_results($response->getBody());
         $this->baton = $data['baton'];
