@@ -2,6 +2,7 @@
 
 namespace Darkterminal\LibSQL\Utils;
 
+use Darkterminal\LibSQL\LibSQL;
 use Darkterminal\LibSQL\Types\Authority;
 use Darkterminal\LibSQL\Types\ExpandedConfig;
 use Darkterminal\LibSQL\Types\ExpandedScheme;
@@ -94,7 +95,7 @@ class Mods
         }
 
         // Parse the URL
-        $uri = parseUri($config['url']);
+        $uri = self::parseUri($config['url']);
 
         // Handle query parameters
         if (!empty($uri->query->pairs)) {
@@ -140,7 +141,7 @@ class Mods
         } else {
             // Unsupported scheme
             throw new LibsqlError(
-                'The client supports only "libsql:", "wss:", "ws:", "https:", "http:" and "file:" URLs, got ' . json_encode($uri->scheme . ":") . '. For more information, please read ' . SUPPORTED_URL_LINK,
+                'The client supports only "libsql:", "wss:", "ws:", "https:", "http:" and "file:" URLs, got ' . json_encode($uri->scheme . ":") . '. For more information, please read ' . LibSQL::SUPPORTED_URL_LINK,
                 "URL_SCHEME_NOT_SUPPORTED"
             );
         }
@@ -175,7 +176,7 @@ class Mods
     public static function parseUri(string $text): Uri
     {
         $match = [];
-        preg_match(URI_RE, $text, $match);
+        preg_match(LibSQL::URI_RE, $text, $match);
         if (empty($match)) {
             throw new LibsqlError("The URL is not in a valid format", "URL_INVALID");
         }
@@ -189,10 +190,10 @@ class Mods
         ];
 
         $scheme = $groups['scheme'];
-        $authority = !empty($groups['authority']) ? parseAuthority($groups['authority']) : null;
-        $path = percentDecode($groups['path']);
-        $query = !empty($groups['query']) ? parseQuery($groups['query']) : null;
-        $fragment = percentDecode($groups['fragment']);
+        $authority = !empty($groups['authority']) ? self::parseAuthority($groups['authority']) : null;
+        $path = self::percentDecode($groups['path']);
+        $query = !empty($groups['query']) ? self::parseQuery($groups['query']) : null;
+        $fragment = self::percentDecode($groups['fragment']);
 
         return Uri::create($scheme, $authority, $path, $query, $fragment);
     }
@@ -207,7 +208,7 @@ class Mods
     public static function parseAuthority(string $text): Authority
     {
         $match = [];
-        preg_match(AUTHORITY_RE, $text, $match);
+        preg_match(LibSQL::AUTHORITY_RE, $text, $match);
         if (empty($match)) {
             throw new LibsqlError("The authority part of the URL is not in a valid format", "URL_INVALID");
         }
@@ -220,10 +221,10 @@ class Mods
             'port' => $match['port'] ?? ''
         ];
 
-        $host = percentDecode($groups['host_br'] !== '' ? $groups['host_br'] : $groups['host']);
+        $host = self::percentDecode($groups['host_br'] !== '' ? $groups['host_br'] : $groups['host']);
         $port = !empty($groups['port']) ? (int)$groups['port'] : null;
-        $username = !empty($groups['username']) ? percentDecode($groups['username']) : null;
-        $password = !empty($groups['password']) ? percentDecode($groups['password']) : null;
+        $username = !empty($groups['username']) ? self::percentDecode($groups['username']) : null;
+        $password = !empty($groups['password']) ? self::percentDecode($groups['password']) : null;
         $userInfo = UserInfo::create($username, $password);
 
         return Authority::create($host, $port, $userInfo);
@@ -255,7 +256,7 @@ class Mods
                 $value = substr($sequence, $splitIdx + 1);
             }
 
-            $pairs[] = KeyValue::create(percentDecode(str_replace("+", " ", $key)), percentDecode(str_replace("+", " ", $value)));
+            $pairs[] = KeyValue::create(self::percentDecode(str_replace("+", " ", $key)), self::percentDecode(str_replace("+", " ", $value)));
         }
         return Query::create($pairs);
     }
@@ -297,9 +298,9 @@ class Mods
 
         $schemeText = $scheme . ":";
 
-        $hostText = encodeHost($authority->host);
-        $portText = encodePort($authority->port);
-        $userInfoText = encodeUserInfo($authority->userInfo);
+        $hostText = self::encodeHost($authority->host);
+        $portText = self::encodePort($authority->port);
+        $userInfoText = self::encodeUserInfo($authority->userInfo);
         $authorityText = "//" . $userInfoText . $hostText . $portText;
 
         $pathText = $path !== "" && substr($path, 0, 1) !== "/" ? "/" . $path : $path;
@@ -386,7 +387,7 @@ class Mods
 
         if (is_float($column)) {
             $type = 'float';
-        } else if (is_base64($column)) {
+        } else if (self::is_base64($column)) {
             $type = 'blob';
         } else if (is_int($column)) {
             $type = 'integer';
