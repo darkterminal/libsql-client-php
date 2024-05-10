@@ -10,6 +10,7 @@ use Darkterminal\LibSQL\Types\HttpResponse;
 use Darkterminal\LibSQL\Types\HttpStatement;
 use Darkterminal\LibSQL\Types\HttpTransaction;
 use Darkterminal\LibSQL\Utils\Exceptions\LibsqlError;
+use Darkterminal\LibSQL\Utils\Mods;
 use Darkterminal\LibSQLPHPExtension\Responses\LibSQLPHPClientResult;
 use Darkterminal\LibSQLPHPExtension\Responses\Transaction;
 
@@ -75,7 +76,7 @@ class LibSQL
      */
     public function __construct(array $config)
     {
-        $configBuilder = expandConfig($config, true);
+        $configBuilder = Mods::expandConfig($config, true);
 
         if ($configBuilder->scheme === ExpandedScheme::file && !empty($configBuilder->authToken) && !empty($configBuilder->syncUrl)) {
             $this->remoteReplicaProvider = new RemoteReplicaClient(
@@ -100,7 +101,7 @@ class LibSQL
                 throw new LibsqlError('A "https:" URL cannot opt out of TLS by using ?tls=0', "URL_INVALID");
             }
 
-            $url = encodeBaseUrl($configBuilder->scheme, $configBuilder->authority, $configBuilder->path);
+            $url = Mods::encodeBaseUrl($configBuilder->scheme, $configBuilder->authority, $configBuilder->path);
             $this->httpProvider = new HttpClient();
             $this->httpProvider->setup($url, $configBuilder->authToken);
             $this->mode = 'Remote';
