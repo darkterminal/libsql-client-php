@@ -7,8 +7,7 @@
             "Darkterminal\\LibSQL\\": "src/"
         },
         "files": [
-            "src/Utils/helpers.php",
-            "src/Utils/constants.php"
+            "src/Utils/helpers.php"
         ]
     },
     "authors": [
