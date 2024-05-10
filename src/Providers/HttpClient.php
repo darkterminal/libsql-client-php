@@ -7,6 +7,7 @@ use Darkterminal\LibSQL\Types\HttpStatement;
 use Darkterminal\LibSQL\Types\HttpTransaction;
 use Darkterminal\LibSQL\Types\TransactionMode;
 use Darkterminal\LibSQL\Utils\Exceptions\LibsqlError;
+use Darkterminal\LibSQL\Utils\Mods;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Request;
@@ -177,7 +178,7 @@ class HttpClient
             TransactionMode::checker($mode);
 
             // Create the start transaction request
-            $startTransaction = $this->_createRequest(\LIBSQL_EXECUTE, transactionModeToBegin($mode));
+            $startTransaction = $this->_createRequest(\LIBSQL_EXECUTE, Mods::transactionModeToBegin($mode));
 
             // Initialize the batch payload
             $batchPayload = [];
@@ -484,7 +485,7 @@ class HttpClient
     protected function _typeParser(mixed $value): string
     {
         // Check the type of the value using the provided function
-        $type = checkColumnType($value);
+        $type = Mods::checkColumnType($value);
 
         // Throw an error if the type is unknown
         if ($type === 'unknown') {
