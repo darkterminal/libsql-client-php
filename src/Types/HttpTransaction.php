@@ -2,6 +2,7 @@
 
 namespace Darkterminal\LibSQL\Types;
 
+use Darkterminal\LibSQL\LibSQL;
 use Darkterminal\LibSQL\Providers\HttpClient;
 use Darkterminal\LibSQL\Utils\Mods;
 
@@ -11,7 +12,7 @@ class HttpTransaction extends HttpClient
 
     public function __construct(string $mode)
     {
-        $request = $this->_createRequest(\LIBSQL_EXECUTE, Mods::transactionModeToBegin($mode));
+        $request = $this->_createRequest(LibSQL::LIBSQL_EXECUTE, Mods::transactionModeToBegin($mode));
         $response = $this->runQuery($this->_makeRequest($request, false), true);
         $data = map_results($response->getBody());
         $this->baton = $data['baton'];
@@ -27,7 +28,7 @@ class HttpTransaction extends HttpClient
      */
     public function addTransaction(HttpStatement $query): self
     {
-        \array_push($this->collectors, $this->_createRequest(\LIBSQL_EXECUTE, $query->sql, $query->args, $query->named_args));
+        \array_push($this->collectors, $this->_createRequest(LibSQL::LIBSQL_EXECUTE, $query->sql, $query->args, $query->named_args));
         return $this;
     }
 
@@ -49,12 +50,12 @@ class HttpTransaction extends HttpClient
      */
     public function rollback(): void
     {
-        $this->runQuery($this->_makeRequest($this->_createRequest(\LIBSQL_EXECUTE, 'ROLLBACK'), true, $this->baton));
+        $this->runQuery($this->_makeRequest($this->_createRequest(LibSQL::LIBSQL_EXECUTE, 'ROLLBACK'), true, $this->baton));
     }
 
     protected function _rawRollback(): array
     {
-        return $this->_createRequest(\LIBSQL_EXECUTE, 'ROLLBACK');
+        return $this->_createRequest(LibSQL::LIBSQL_EXECUTE, 'ROLLBACK');
     }
 
     /**
@@ -62,11 +63,11 @@ class HttpTransaction extends HttpClient
      */
     public function commit(): void
     {
-        $this->runQuery($this->_makeRequest($this->_createRequest(\LIBSQL_EXECUTE, 'COMMIT'), true, $this->baton));
+        $this->runQuery($this->_makeRequest($this->_createRequest(LibSQL::LIBSQL_EXECUTE, 'COMMIT'), true, $this->baton));
     }
 
     protected function _rawCommit(): array
     {
-        return $this->_createRequest(\LIBSQL_EXECUTE, 'COMMIT');
+        return $this->_createRequest(LibSQL::LIBSQL_EXECUTE, 'COMMIT');
     }
 }
