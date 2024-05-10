@@ -2,6 +2,7 @@
 
 namespace Darkterminal\LibSQL\Providers;
 
+use Darkterminal\LibSQL\LibSQL;
 use Darkterminal\LibSQL\Types\HttpResponse;
 use Darkterminal\LibSQL\Types\HttpStatement;
 use Darkterminal\LibSQL\Types\HttpTransaction;
@@ -85,7 +86,7 @@ class HttpClient
     public function setup(string $url, string|null $authToken = null, int|float $timeout = 2.0)
     {
         // Check if attempting to use a remote (turso) database without providing a token
-        if (\strpos($url, \TURSO) !== false && \is_null($authToken)) {
+        if (\strpos($url, LibSQL::TURSO) !== false && \is_null($authToken)) {
             throw new LibsqlError("Trying to use remote (turso) database without using token", "INVALID_REMOTE_CONNECTION");
         }
 
@@ -126,7 +127,7 @@ class HttpClient
     {
         try {
             // Send a health check request to the server
-            $request = new Request('GET', \HEALTH_ENDPOINT, $this->headers);
+            $request = new Request('GET', LibSQL::HEALTH_ENDPOINT, $this->headers);
             $response = $this->http->send($request);
             return $response->getStatusCode() === 200;
         } catch (\Throwable $e) {
@@ -149,7 +150,7 @@ class HttpClient
     public function execute(HttpStatement $query, string $baton = ''): HttpResponse
     {
         // Create request payload
-        $payload = $this->_createRequest(\LIBSQL_EXECUTE, $query->sql, $query->args, $query->named_args);
+        $payload = $this->_createRequest(LibSQL::LIBSQL_EXECUTE, $query->sql, $query->args, $query->named_args);
         $request = (!empty($baton)) ? $this->_makeRequest($payload, false, $baton) : $this->_makeRequest($payload);
 
         // Send POST request
@@ -178,7 +179,7 @@ class HttpClient
             TransactionMode::checker($mode);
 
             // Create the start transaction request
-            $startTransaction = $this->_createRequest(\LIBSQL_EXECUTE, Mods::transactionModeToBegin($mode));
+            $startTransaction = $this->_createRequest(LibSQL::LIBSQL_EXECUTE, Mods::transactionModeToBegin($mode));
 
             // Initialize the batch payload
             $batchPayload = [];
@@ -186,14 +187,14 @@ class HttpClient
             // Iterate through each statement and add it to the batch payload
             foreach ($queries as $stmt) {
                 /** @var HttpStatement $stmt */
-                \array_push($batchPayload, $this->_createRequest(\LIBSQL_EXECUTE, $stmt->sql, $stmt->args, $stmt->named_args));
+                \array_push($batchPayload, $this->_createRequest(LibSQL::LIBSQL_EXECUTE, $stmt->sql, $stmt->args, $stmt->named_args));
             }
 
             // Add a commit request to the batch payload
-            \array_push($batchPayload, $this->_createRequest(\LIBSQL_EXECUTE, 'COMMIT'));
+            \array_push($batchPayload, $this->_createRequest(LibSQL::LIBSQL_EXECUTE, 'COMMIT'));
 
             // Execute the batch request asynchronously
-            return $this->http->postAsync(\PIPE_LINE_ENDPOINT, [
+            return $this->http->postAsync(LibSQL::PIPE_LINE_ENDPOINT, [
                 'json' => $this->_makeRequest($startTransaction, false)
             ])->then(
                 function (ResponseInterface $res) use ($batchPayload) {
@@ -202,7 +203,7 @@ class HttpClient
                     $trx = HttpResponse::create($beginResult['baton'], $beginResult['base_url'], $beginResult['results']);
 
                     // Execute the batch payload asynchronously
-                    return $this->http->postAsync(\PIPE_LINE_ENDPOINT, [
+                    return $this->http->postAsync(LibSQL::PIPE_LINE_ENDPOINT, [
                         'json' => $this->_makeRequest($batchPayload, true, $trx->baton)
                     ])->then(
                         function (ResponseInterface $res) {
@@ -243,7 +244,7 @@ class HttpClient
     {
         try {
             $payload = $this->_createSequenceRequest(\str_replace(["\r", "\n", "\r\n"], '', $sql));
-            $response = $this->http->post(\PIPE_LINE_ENDPOINT, [
+            $response = $this->http->post(LibSQL::PIPE_LINE_ENDPOINT, [
                 'json' => $this->_makeRequest($payload)
             ]);
             return $response->getBody();
@@ -279,7 +280,7 @@ class HttpClient
 
     public function version(): string
     {
-        $response = $this->http->get(\VERSION_ENDPOINT);
+        $response = $this->http->get(LibSQL::VERSION_ENDPOINT);
         return $response->getBody();
     }
 
@@ -293,7 +294,7 @@ class HttpClient
      */
     protected function runQuery(array $payload, bool $trace = false): HttpResponse|ResponseInterface
     {
-        $response = $this->http->post(\PIPE_LINE_ENDPOINT, [
+        $response = $this->http->post(LibSQL::PIPE_LINE_ENDPOINT, [
             'json' => $payload
         ]);
 
@@ -341,7 +342,7 @@ class HttpClient
      */
     protected function _close(): array
     {
-        return ["type" => \LIBSQL_CLOSE];
+        return ["type" => LibSQL::LIBSQL_CLOSE];
     }
 
     /**
@@ -355,7 +356,7 @@ class HttpClient
      * @return array The request array for execution.
      */
     protected function _createRequest(
-        string $type = \LIBSQL_EXECUTE,
+        string $type = LibSQL::LIBSQL_EXECUTE,
         string $sql,
         ?array $args = [],
         ?bool $named_args = false
@@ -386,7 +387,7 @@ class HttpClient
     ): array {
         // Initialize the execute request array
         $executeRequest = [
-            "type" => \LIBSQL_SEQUENCE,
+            "type" => LibSQL::LIBSQL_SEQUENCE,
             "sql" => $sql
         ];
 
