@@ -2,9 +2,6 @@
 
 namespace Darkterminal\LibSQL\Types;
 
-use Darkterminal\LibSQL\Traits\MapResults;
-use Darkterminal\LibSQL\Utils\Exceptions\LibsqlError;
-
 /**
  * Represents a set of HTTP result data.
  */
