@@ -9,3 +9,4 @@ examples/*.db
 *.db
 _intelephense_helper.php
 orchestrators/
+*.db*
