@@ -10,6 +10,8 @@ For a **local connection**, an example configuration includes specifying a file 
 
 For a **remote connection**, the configuration includes the URL of the remote server, an authentication token, and an optional TLS flag.
 
+For a **remote replica connection**, need to configure with associative array that includes the `url` which is the path to the database file, `authToken`, `syncUrl` is remote server url / turso url, and two optional value is `syncInterval` default is 5 second and `read_your_writes` default is true.
+
 The constructor throws a `LibsqlError` if there's an issue creating the HTTP client or if the provided URL scheme is not supported. It distinguishes between remote and local connections and sets up the appropriate provider accordingly.
 
 ```php
@@ -189,7 +191,7 @@ $results = $db->batch(queries: $stmts);
 print_r($results);
 ```
 
-## (Local) Executes a batch of queries
+## (Local / Remote Replica) Executes a batch of queries
 
 This method `execute_batch()` executes a batch of queries exclusively for local (file) connections. It allows you to execute multiple SQL statements in a single batch.
 
@@ -263,7 +265,7 @@ $transaction->addTransaction(HttpStatement::create("UPDATE users SET name = 'dar
 $result = $transaction->endTransaction();
 print_r($result);
 
-// Local Usage
+// Local / Remote Replica Usage
 $tx = $db->transaction(TransactionBehavior::Deferred);
 $tx->exec("INSERT INTO users (name) VALUES (?)", ["Emanuel"]);
 $tx->exec("INSERT INTO users (name) VALUES (?)", ["Darren"]);

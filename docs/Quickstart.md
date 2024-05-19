@@ -1,18 +1,5 @@
 # SDK Quickstart Guide
 
-Before you start using this SDK, read this requirements.
-
-## Requirements
-
-- Linux or Darwin OS (_Don't ask Windows please... out of my plan_)
-- C/C++ Compiler
-- jq
-- Rust Installed
-- PHP Installed
-- FFI Extension is Enabled (_Why? I read the C header definition from wrapper_)
-
-Or, you can't used this SDK.
-
 ## Installation
 
 ```bash
@@ -31,7 +18,7 @@ require_once 'vendor/autoload.php';
 $config = [
     "url" => "file:database.db", // use in-memory database with :memory:
     "flags" => LIBSQLPHP_OPEN_READWRITE | LIBSQLPHP_OPEN_CREATE,
-    "encryptionKey" => ""
+    "encryptionKey" => "" // optional
 ];
 
 $db = new LibSQL($config);
@@ -55,9 +42,8 @@ use Darkterminal\LibSQL\Types\LibSQLResult;
 require_once 'vendor/autoload.php';
 
 $config = [
-    'url' => 'libsql://127.0.0.1:8001', // libsql://database-org.turso.io
+    'url' => getenv('TURSO_DATABASE_URL'), // libsql://database-org.turso.io
     'authToken' => getenv('LIBSQL_PHP_FA_TOKEN'), // your turso db token here
-    'tls' => false
 ];
 
 $db = new LibSQL($config);
@@ -74,7 +60,22 @@ $results = $db->execute(query: $query);
 echo $results->fetch(type: LibSQLResult::FETCH_OBJ) . PHP_EOL;
 ```
 
+## Remote Replica Connection
+
+```php
+$config = [
+    "url" => "file:database.db",
+    "authToken" => getenv('TURSO_DATABASE_TOKEN'),
+    "syncUrl" => getenv('TURSO_DATABASE_URL'),
+    "syncInterval" => 5, // optional, default is 5 second
+    "read_your_writes" => true // optional, default is true
+];
+
+$db = new LibSQL($config);
+```
+
 ## Read more
 - [LibSQL PHP SDK](LibSQL.md)
 - [Local Example](https://github.com/darkterminal/libsql-client-php/tree/main/examples/local-file)
-- [Remote Example](https://github.com/darkterminal/libsql-client-php/tree/main/examples/remote-http-sqld)
+- [Remote Example](https://github.com/darkterminal/libsql-client-php/tree/main/examples/remote-http)
+- [Remote Replica Example](https://github.com/darkterminal/libsql-client-php/tree/main/examples/remote-http)
