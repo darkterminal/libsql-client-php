@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "darkterminal/libsql-php-ext",
-            "version": "v1.0.0",
+            "version": "v1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/darkterminal/libsql-php-ext.git",
-                "reference": "a93f791b18306ebc4818efd27a45648e9ba2cfae"
+                "reference": "00bea7e8bfdcd55ba353bb3dfc41bdbe5b39baef"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/darkterminal/libsql-php-ext/zipball/a93f791b18306ebc4818efd27a45648e9ba2cfae",
-                "reference": "a93f791b18306ebc4818efd27a45648e9ba2cfae",
+                "url": "https://api.github.com/repos/darkterminal/libsql-php-ext/zipball/00bea7e8bfdcd55ba353bb3dfc41bdbe5b39baef",
+                "reference": "00bea7e8bfdcd55ba353bb3dfc41bdbe5b39baef",
                 "shasum": ""
             },
             "require": {
@@ -49,7 +49,7 @@
             "description": "LibSQL Native Extension for PHP",
             "support": {
                 "issues": "https://github.com/darkterminal/libsql-php-ext/issues",
-                "source": "https://github.com/darkterminal/libsql-php-ext/tree/v1.0.0"
+                "source": "https://github.com/darkterminal/libsql-php-ext/tree/v1.0.1"
             },
             "funding": [
                 {
@@ -61,7 +61,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-05-03T10:07:03+00:00"
+            "time": "2024-05-19T05:14:23+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
